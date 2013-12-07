@@ -39,17 +39,25 @@ Snake::Node Snake::mkNode(QPoint pos, NodeType type, Orientation orientation)
 
 void Snake::start()
 {
-    this->god->start(500);
+    this->god->start(200);
 }
 
 void Snake::tick()
 {
-    this->snakeBody.removeFirst();
+    QPoint newCoords = this->snakeBody.last().pos
+            + orientationPoint(this->snakeBody.last().orientation);
+
+    // teleportation:
+    if (newCoords.x() >= this->size().width())
+        newCoords.setX(0);
+    if (newCoords.y() >= this->size().height())
+        newCoords.setY(0);
+
     this->snakeBody.append(
-                mkNode(this->snakeBody.last().pos
-                       + orientationPoint(this->snakeBody.last().orientation)
+                mkNode(newCoords
                        , SnakeBody, this->snakeBody.last().orientation)
                 );
+    this->snakeBody.removeFirst();
     emit refreshNodes();
 }
 

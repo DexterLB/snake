@@ -48,7 +48,6 @@ QPoint Canvas::pixelCoords(QPoint coords)
 void Canvas::setSnake(Snake *s)
 {
     this->snake = s;
-    // this->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     this->setSizeIncrement(this->nodeSize());
     this->setFixedSize(this->pixelSize());
     this->updateGeometry();
