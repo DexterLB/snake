@@ -14,9 +14,11 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    canvas.cpp
+    canvas.cpp \
+    snake.cpp
 
 HEADERS  += mainwindow.h \
-    canvas.h
+    canvas.h \
+    snake.h
 
 FORMS    += mainwindow.ui

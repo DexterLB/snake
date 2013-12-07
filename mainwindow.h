@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include "snake.h"
 
 namespace Ui {
 class MainWindow;
@@ -17,6 +18,11 @@ public:
 
 private:
     Ui::MainWindow *ui;
+    QList<Snake::Node> nodes;
+
+private slots:
+    void draw();
+    void erase();
 };
 
 #endif // MAINWINDOW_H
