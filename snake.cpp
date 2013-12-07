@@ -7,6 +7,7 @@ Snake::Snake(QObject *parent) :
     snakeBody << mkNode(QPoint(1, 0), SnakeBody, Right);
     snakeBody << mkNode(QPoint(2, 0), SnakeBody, Right);
     this->god = new QTimer();
+    this->m_size = QSize(50, 50);
 
     connect(this->god, SIGNAL(timeout()), this, SLOT(tick()));
 }
@@ -55,4 +56,9 @@ void Snake::tick()
 QList<Snake::Node> Snake::nodes()
 {
     return this->snakeBody;
+}
+
+QSize Snake::size()
+{
+    return this->m_size;
 }

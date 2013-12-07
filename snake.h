@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QPoint>
 #include <QTimer>
+#include <QSize>
 
 class Snake : public QObject
 {
@@ -33,6 +34,8 @@ public:
 
     QList<Node> nodes();
 
+    QSize size();
+
 signals:
     void refreshNodes();
 
@@ -45,7 +48,7 @@ private slots:
 private:
     QList<Node> snakeBody;
     QTimer *god;
-
+    QSize m_size;
 };
 
 #endif // SNAKE_H

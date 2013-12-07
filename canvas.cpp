@@ -8,6 +8,8 @@ Canvas::Canvas(QWidget *parent) :
     this->setBaseSize(this->matrixSize());
     this->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     */
+    this->setBackgroundRole(QPalette::Base);
+    this->setAutoFillBackground(true);
 }
 
 void Canvas::paintEvent(QPaintEvent * /* event */)
@@ -25,14 +27,15 @@ void Canvas::drawNode(QPainter *painter, Snake::Node node)
     painter->drawRect(QRect(this->pixelCoords(node.pos), this->nodeSize()));
 }
 
-QSize Canvas::matrixSize()
-{
-    return QSize(20, 20);   // nodes
-}
-
 QSize Canvas::nodeSize()
 {
     return QSize(10, 10);   // pixels
+}
+
+QSize Canvas::pixelSize()
+{
+    return QSize(this->nodeSize().width() * this->snake->size().width()
+            , this->nodeSize().height() * this->snake->size().height());
 }
 
 QPoint Canvas::pixelCoords(QPoint coords)
@@ -45,4 +48,8 @@ QPoint Canvas::pixelCoords(QPoint coords)
 void Canvas::setSnake(Snake *s)
 {
     this->snake = s;
+    // this->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    this->setSizeIncrement(this->nodeSize());
+    this->setFixedSize(this->pixelSize());
+    this->updateGeometry();
 }

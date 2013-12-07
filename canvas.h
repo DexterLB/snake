@@ -14,7 +14,7 @@ class Canvas : public QWidget
 public:
     explicit Canvas(QWidget *parent = 0);
     QSize nodeSize();
-    QSize matrixSize();
+    QSize pixelSize();
     QPoint pixelCoords(QPoint coords);
     void setSnake(Snake *s);
 
