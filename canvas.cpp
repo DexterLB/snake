@@ -22,6 +22,26 @@ void Canvas::paintEvent(QPaintEvent * /* event */)
     }
 }
 
+void Canvas::keyPressEvent(QKeyEvent *event)
+{
+    switch(event->key()) {
+    case Qt::Key_Left:
+        this->snake->orient(Snake::Left);
+        break;
+    case Qt::Key_Right:
+        this->snake->orient(Snake::Right);
+        break;
+    case Qt::Key_Up:
+        this->snake->orient(Snake::Up);
+        break;
+    case Qt::Key_Down:
+        this->snake->orient(Snake::Down);
+        break;
+    default:
+        QWidget::keyPressEvent(event);
+    }
+}
+
 void Canvas::drawNode(QPainter *painter, Snake::Node node)
 {
     painter->drawRect(QRect(this->pixelCoords(node.pos), this->nodeSize()));

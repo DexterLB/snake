@@ -5,6 +5,7 @@
 #include <QPainter>
 #include <QtDebug>
 #include <QList>
+#include <QKeyEvent>
 
 #include "snake.h"
 
@@ -28,6 +29,7 @@ private:
 
 protected:
     void paintEvent(QPaintEvent *event);
+    void keyPressEvent(QKeyEvent *event);
 };
 
 #endif // CANVAS_H

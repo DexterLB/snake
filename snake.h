@@ -41,6 +41,7 @@ signals:
 
 public slots:
     void start();
+    void orient(Orientation o);
 
 private slots:
     void tick();

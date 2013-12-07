@@ -28,5 +28,4 @@ void MainWindow::draw()
 
 void MainWindow::erase()
 {
-
 }

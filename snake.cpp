@@ -52,12 +52,22 @@ void Snake::tick()
         newCoords.setX(0);
     if (newCoords.y() >= this->size().height())
         newCoords.setY(0);
+    if (newCoords.x() < 0)
+        newCoords.setX(this->size().width() - 1);
+    if (newCoords.y() < 0)
+        newCoords.setY(this->size().height() - 1);
 
     this->snakeBody.append(
                 mkNode(newCoords
                        , SnakeBody, this->snakeBody.last().orientation)
                 );
     this->snakeBody.removeFirst();
+    emit refreshNodes();
+}
+
+void Snake::orient(Orientation o)
+{
+    this->snakeBody.last().orientation = o;
     emit refreshNodes();
 }
 
