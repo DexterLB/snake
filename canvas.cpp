@@ -14,8 +14,9 @@ void Canvas::paintEvent(QPaintEvent * /* event */)
 {
     qDebug() << "entered paint event";
     QPainter painter(this);
-    for (int i = 0; i < this->nodeList->size(); ++i) {
-        this->drawNode(&painter, this->nodeList->value(i));
+    QList<Snake::Node> nodeList = this->snake->nodes();
+    for (int i = 0; i < nodeList.size(); ++i) {
+        this->drawNode(&painter, nodeList.value(i));
     }
 }
 
@@ -41,7 +42,7 @@ QPoint Canvas::pixelCoords(QPoint coords)
     return coords;
 }
 
-void Canvas::setNodeList(QList<Snake::Node> *nodeList)
+void Canvas::setSnake(Snake *s)
 {
-    this->nodeList = nodeList;
+    this->snake = s;
 }

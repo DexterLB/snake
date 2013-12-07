@@ -6,7 +6,12 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    ui->canvas->setNodeList(&(this->nodes));
+
+    this->snake = new Snake();
+
+    ui->canvas->setSnake(this->snake);
+    connect(this->snake, SIGNAL(refreshNodes()), this->ui->canvas, SLOT(update()));
+
     connect(ui->eraseBtn, SIGNAL(clicked()), this, SLOT(erase()));
     connect(ui->drawBtn, SIGNAL(clicked()), this, SLOT(draw()));
 }
@@ -18,11 +23,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::draw()
 {
-    Snake::Node n;
-    n.pos = QPoint(ui->box_x->value(), ui->box_y->value());
-    n.type = Snake::SnakeBody;
-    this->nodes.append(n);
-    ui->canvas->update();
+    this->snake->start();
 }
 
 void MainWindow::erase()

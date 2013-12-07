@@ -16,14 +16,14 @@ public:
     QSize nodeSize();
     QSize matrixSize();
     QPoint pixelCoords(QPoint coords);
-    void setNodeList(QList<Snake::Node> *nodeList);
+    void setSnake(Snake *s);
 
 signals:
 
 public slots:
 
 private:
-    QList<Snake::Node> *nodeList;
+    Snake *snake;
     void drawNode(QPainter *painter, Snake::Node node);
 
 protected:

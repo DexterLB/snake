@@ -18,7 +18,7 @@ public:
 
 private:
     Ui::MainWindow *ui;
-    QList<Snake::Node> nodes;
+    Snake *snake;
 
 private slots:
     void draw();
