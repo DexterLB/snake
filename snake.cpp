@@ -39,6 +39,33 @@ Snake::Node Snake::mkNode(QPoint pos, Orientation orientation)
 void Snake::start()
 {
     this->god->start(200);
+    this->newApple();
+}
+
+bool Snake::checkGrow()
+{
+    for (int i = 0; i < this->m_nodes[Apple].size(); ++i) {
+        if (this->m_nodes[SnakeBody].last().pos == this->m_nodes[Apple][i].pos) {
+            this->m_nodes[Apple].removeAt(i);
+            this->newApple();
+            return true;
+        }
+    }
+    return false;
+}
+
+void Snake::newApple()
+{
+    this->m_nodes[Apple].append(this->mkNode(
+                                    this->rndPoint(),
+                                    Nowhere));
+    emit refreshNodes();
+}
+
+QPoint Snake::rndPoint()
+{
+    return QPoint(qrand() % this->size().width(),
+                  qrand() % this->size().height());
 }
 
 void Snake::tick()
@@ -56,11 +83,17 @@ void Snake::tick()
     if (newCoords.y() < 0)
         newCoords.setY(this->size().height() - 1);
 
+    // add a node at the "head"
     this->m_nodes[SnakeBody].append(
                 mkNode(newCoords
                        , this->m_nodes[SnakeBody].last().orientation)
                 );
-    this->m_nodes[SnakeBody].removeFirst();
+
+    if (!this->checkGrow()) {
+        // remove a node at the "tail" only if not growing
+        this->m_nodes[SnakeBody].removeFirst();
+    }
+
     emit refreshNodes();
 }
 

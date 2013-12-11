@@ -16,11 +16,13 @@ public:
         Left,
         Right,
         Up,
-        Down
+        Down,
+        Nowhere
     };
 
     enum NodeType {
-        SnakeBody
+        SnakeBody,
+        Apple
     };
 
     typedef struct {
@@ -54,6 +56,10 @@ private:
     QList<Node> snakeBody;
     QTimer *god;
     QSize m_size;
+
+    bool checkGrow();
+    void newApple();
+    QPoint rndPoint();
 };
 
 #endif // SNAKE_H

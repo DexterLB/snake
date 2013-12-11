@@ -20,6 +20,9 @@ void Canvas::paintEvent(QPaintEvent * /* event */)
     for (int i = 0; i < nm[Snake::SnakeBody].size(); ++i) {
         this->drawNode(&painter, nm[Snake::SnakeBody].value(i));
     }
+    for (int i = 0; i < nm[Snake::Apple].size(); ++i) {
+        this->drawNode(&painter, nm[Snake::Apple].value(i));
+    }
 }
 
 void Canvas::keyPressEvent(QKeyEvent *event)
