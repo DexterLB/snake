@@ -16,9 +16,9 @@ void Canvas::paintEvent(QPaintEvent * /* event */)
 {
     qDebug() << "entered paint event";
     QPainter painter(this);
-    QList<Snake::Node> nodeList = this->snake->nodes();
-    for (int i = 0; i < nodeList.size(); ++i) {
-        this->drawNode(&painter, nodeList.value(i));
+    Snake::NodeMap nm = this->snake->nodes();
+    for (int i = 0; i < nm[Snake::SnakeBody].size(); ++i) {
+        this->drawNode(&painter, nm[Snake::SnakeBody].value(i));
     }
 }
 

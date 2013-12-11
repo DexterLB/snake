@@ -3,9 +3,9 @@
 Snake::Snake(QObject *parent) :
     QObject(parent)
 {
-    snakeBody << mkNode(QPoint(0, 0), SnakeBody, Right);
-    snakeBody << mkNode(QPoint(1, 0), SnakeBody, Right);
-    snakeBody << mkNode(QPoint(2, 0), SnakeBody, Right);
+    m_nodes[SnakeBody] << mkNode(QPoint(0, 0), Right);
+    m_nodes[SnakeBody] << mkNode(QPoint(1, 0), Right);
+    m_nodes[SnakeBody] << mkNode(QPoint(2, 0), Right);
     this->god = new QTimer();
     this->m_size = QSize(50, 50);
 
@@ -28,11 +28,10 @@ QPoint Snake::orientationPoint(Orientation o)
     }
 }
 
-Snake::Node Snake::mkNode(QPoint pos, NodeType type, Orientation orientation)
+Snake::Node Snake::mkNode(QPoint pos, Orientation orientation)
 {
     Node n;
     n.pos = pos;
-    n.type = type;
     n.orientation = orientation;
     return n;
 }
@@ -44,8 +43,8 @@ void Snake::start()
 
 void Snake::tick()
 {
-    QPoint newCoords = this->snakeBody.last().pos
-            + orientationPoint(this->snakeBody.last().orientation);
+    QPoint newCoords = this->m_nodes[SnakeBody].last().pos
+            + orientationPoint(this->m_nodes[SnakeBody].last().orientation);
 
     // teleportation:
     if (newCoords.x() >= this->size().width())
@@ -57,23 +56,23 @@ void Snake::tick()
     if (newCoords.y() < 0)
         newCoords.setY(this->size().height() - 1);
 
-    this->snakeBody.append(
+    this->m_nodes[SnakeBody].append(
                 mkNode(newCoords
-                       , SnakeBody, this->snakeBody.last().orientation)
+                       , this->m_nodes[SnakeBody].last().orientation)
                 );
-    this->snakeBody.removeFirst();
+    this->m_nodes[SnakeBody].removeFirst();
     emit refreshNodes();
 }
 
 void Snake::orient(Orientation o)
 {
-    this->snakeBody.last().orientation = o;
+    this->m_nodes[SnakeBody].last().orientation = o;
     emit refreshNodes();
 }
 
-QList<Snake::Node> Snake::nodes()
+Snake::NodeMap Snake::nodes()
 {
-    return this->snakeBody;
+    return this->m_nodes;
 }
 
 QSize Snake::size()

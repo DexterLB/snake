@@ -5,6 +5,8 @@
 #include <QPoint>
 #include <QTimer>
 #include <QSize>
+#include <QMap>
+#include <QList>
 
 class Snake : public QObject
 {
@@ -23,16 +25,17 @@ public:
 
     typedef struct {
         QPoint pos;
-        NodeType type;
         Orientation orientation;
     } Node;
 
+    typedef QMap< NodeType, QList<Node> > NodeMap;
+
     explicit Snake(QObject *parent = 0);
 
-    static Node mkNode(QPoint pos, NodeType type, Orientation orientation);
+    static Node mkNode(QPoint pos, Orientation orientation);
     static QPoint orientationPoint(Orientation o);
 
-    QList<Node> nodes();
+    NodeMap nodes();
 
     QSize size();
 
@@ -47,6 +50,7 @@ private slots:
     void tick();
 
 private:
+    NodeMap m_nodes;
     QList<Node> snakeBody;
     QTimer *god;
     QSize m_size;
