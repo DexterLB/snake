@@ -45,9 +45,9 @@ void Canvas::keyPressEvent(QKeyEvent *event)
     }
 }
 
-void Canvas::drawNode(QPainter *painter, Snake::Node node)
+void Canvas::drawNode(QPainter *painter, Snake::Node *node)
 {
-    painter->drawRect(QRect(this->pixelCoords(node.pos), this->nodeSize()));
+    painter->drawRect(QRect(this->pixelCoords(node->pos), this->nodeSize()));
 }
 
 QSize Canvas::nodeSize()

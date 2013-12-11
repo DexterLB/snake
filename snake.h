@@ -6,6 +6,7 @@
 #include <QTimer>
 #include <QSize>
 #include <QMap>
+#include <QHash>
 #include <QList>
 
 class Snake : public QObject
@@ -28,13 +29,14 @@ public:
     typedef struct {
         QPoint pos;
         Orientation orientation;
+        NodeType type;
     } Node;
 
-    typedef QMap< NodeType, QList<Node> > NodeMap;
+    typedef QMap< NodeType, QList<Node*> > NodeMap;
 
     explicit Snake(QObject *parent = 0);
 
-    static Node mkNode(QPoint pos, Orientation orientation);
+    static Node* mkNode(QPoint pos, NodeType type, Orientation orientation);
     static QPoint orientationPoint(Orientation o);
 
     NodeMap nodes();
@@ -53,12 +55,18 @@ private slots:
 
 private:
     NodeMap m_nodes;
+    QHash<QPoint, Node*> gridLookup;
+
+    bool addNode(Node *n);
+    void delNode(NodeType type, int at);
+    bool delNode(QPoint pos);   // slow
+
+
     QList<Node> snakeBody;
     QTimer *god;
     QSize m_size;
 
-    bool checkGrow();
-    void newApple();
+    void newApple(QPoint except = QPoint());
     QPoint rndPoint();
 };
 

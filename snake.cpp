@@ -3,13 +3,47 @@
 Snake::Snake(QObject *parent) :
     QObject(parent)
 {
-    m_nodes[SnakeBody] << mkNode(QPoint(0, 0), Right);
-    m_nodes[SnakeBody] << mkNode(QPoint(1, 0), Right);
-    m_nodes[SnakeBody] << mkNode(QPoint(2, 0), Right);
+    this->addNode(mkNode(QPoint(0, 0), SnakeBody, Right));
+    this->addNode(mkNode(QPoint(1, 0), SnakeBody, Right));
+    this->addNode(mkNode(QPoint(2, 0), SnakeBody, Right));
+
     this->god = new QTimer();
     this->m_size = QSize(50, 50);
 
     connect(this->god, SIGNAL(timeout()), this, SLOT(tick()));
+}
+
+bool Snake::addNode(Node *n)
+{
+    if (this->gridLookup.contains(n->pos)) {
+        return false;
+    }
+    this->gridLookup[n->pos] = n;
+    this->m_nodes[n->type].append(n);
+
+    return true;
+}
+
+bool Snake::delNode(QPoint pos)
+{
+    if (!this->gridLookup.contains(pos)) {
+        return false;
+    }
+    Node *n = this->gridLookup[pos];
+
+    this->m_nodes[n->type].removeOne(n);
+    this->gridLookup.remove(pos);
+
+    delete n;
+    return true;
+}
+
+void Snake::delNode(NodeType type, int at)
+{
+    Node *n = this->m_nodes[type].at(at);
+    this->gridLookup.remove(n->pos);
+    this->m_nodes[type].removeAt(at);
+    delete n;
 }
 
 QPoint Snake::orientationPoint(Orientation o)
@@ -28,11 +62,12 @@ QPoint Snake::orientationPoint(Orientation o)
     }
 }
 
-Snake::Node Snake::mkNode(QPoint pos, Orientation orientation)
+Snake::Node* Snake::mkNode(QPoint pos, NodeType type, Orientation orientation)
 {
-    Node n;
-    n.pos = pos;
-    n.orientation = orientation;
+    Node* n = new Node;
+    n->pos = pos;
+    n->orientation = orientation;
+    n->type = type;
     return n;
 }
 
@@ -42,23 +77,13 @@ void Snake::start()
     this->newApple();
 }
 
-bool Snake::checkGrow()
+void Snake::newApple(QPoint except)
 {
-    for (int i = 0; i < this->m_nodes[Apple].size(); ++i) {
-        if (this->m_nodes[SnakeBody].last().pos == this->m_nodes[Apple][i].pos) {
-            this->m_nodes[Apple].removeAt(i);
-            this->newApple();
-            return true;
-        }
-    }
-    return false;
-}
-
-void Snake::newApple()
-{
-    this->m_nodes[Apple].append(this->mkNode(
-                                    this->rndPoint(),
-                                    Nowhere));
+    QPoint p;
+    do {
+        p = this->rndPoint();
+    } while ((!p.isNull() && p == except) || this->gridLookup.contains(p));
+    this->addNode(this->mkNode(p, Apple, Nowhere));
     emit refreshNodes();
 }
 
@@ -70,8 +95,8 @@ QPoint Snake::rndPoint()
 
 void Snake::tick()
 {
-    QPoint newCoords = this->m_nodes[SnakeBody].last().pos
-            + orientationPoint(this->m_nodes[SnakeBody].last().orientation);
+    QPoint newCoords = this->m_nodes[SnakeBody].last()->pos
+            + orientationPoint(this->m_nodes[SnakeBody].last()->orientation);
 
     // teleportation:
     if (newCoords.x() >= this->size().width())
@@ -83,23 +108,27 @@ void Snake::tick()
     if (newCoords.y() < 0)
         newCoords.setY(this->size().height() - 1);
 
-    // add a node at the "head"
-    this->m_nodes[SnakeBody].append(
-                mkNode(newCoords
-                       , this->m_nodes[SnakeBody].last().orientation)
-                );
 
-    if (!this->checkGrow()) {
+    if (this->gridLookup.contains(newCoords) &&
+            this->gridLookup.value(newCoords)->type == Apple) {
+        // delete the apple and make a new one
+        this->delNode(newCoords);
+        this->newApple(newCoords);
+    } else {
         // remove a node at the "tail" only if not growing
-        this->m_nodes[SnakeBody].removeFirst();
+        this->delNode(SnakeBody, 0);
     }
+
+    // add a node at the "head"
+    this->addNode(mkNode(newCoords, SnakeBody
+        , this->m_nodes[SnakeBody].last()->orientation));
 
     emit refreshNodes();
 }
 
 void Snake::orient(Orientation o)
 {
-    this->m_nodes[SnakeBody].last().orientation = o;
+    this->m_nodes[SnakeBody].last()->orientation = o;
     emit refreshNodes();
 }
 
@@ -111,4 +140,9 @@ Snake::NodeMap Snake::nodes()
 QSize Snake::size()
 {
     return this->m_size;
+}
+
+inline uint qHash(const QPoint &p)
+{
+    return qHash(((p.x() + p.y()) * (p.x() + p.y() + 1) + p.y()) / 2);
 }

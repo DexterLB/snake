@@ -25,7 +25,7 @@ public slots:
 
 private:
     Snake *snake;
-    void drawNode(QPainter *painter, Snake::Node node);
+    void drawNode(QPainter *painter, Snake::Node *node);
 
 protected:
     void paintEvent(QPaintEvent *event);
