@@ -41,22 +41,23 @@
       </property>
       <layout class="QHBoxLayout" name="horizontalLayout">
        <item>
-        <widget class="QSpinBox" name="box_x"/>
-       </item>
-       <item>
-        <widget class="QSpinBox" name="box_y"/>
-       </item>
-       <item>
-        <widget class="QPushButton" name="drawBtn">
+        <widget class="QPushButton" name="startBtn">
          <property name="text">
-          <string>Draw</string>
+          <string>Start</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="eraseBtn">
+        <widget class="QPushButton" name="pauseBtn">
          <property name="text">
-          <string>Erase</string>
+          <string>Pause</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="initBtn">
+         <property name="text">
+          <string>Init</string>
          </property>
         </widget>
        </item>

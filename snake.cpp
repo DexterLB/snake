@@ -3,14 +3,68 @@
 Snake::Snake(QObject *parent) :
     QObject(parent)
 {
+
+    this->god = new QTimer();
+    this->m_size = QSize(50, 50);
+    this->m_state = Undefined;
+
+    connect(this->god, SIGNAL(timeout()), this, SLOT(tick()));
+}
+
+void Snake::init()
+{
+    this->god->stop();
+    this->god->setInterval(200);
+
+    this->clearNodes();
+
     this->addNode(mkNode(QPoint(0, 0), SnakeBody, Right));
     this->addNode(mkNode(QPoint(1, 0), SnakeBody, Right));
     this->addNode(mkNode(QPoint(2, 0), SnakeBody, Right));
 
-    this->god = new QTimer();
-    this->m_size = QSize(50, 50);
+    this->newApple();
 
-    connect(this->god, SIGNAL(timeout()), this, SLOT(tick()));
+    qDebug() << "game init";
+    this->setState(Stopped);
+    emit refreshNodes();
+}
+
+bool Snake::start()
+{
+    if (this->state() == Stopped
+            || this->state() == Paused) {
+        this->god->start();
+        qDebug() << "started game";
+        this->setState(Playing);
+        return true;
+    } else {
+        qDebug() << "start game failed";
+        return false;
+    }
+}
+
+bool Snake::pause()
+{
+    if (this->state() == Playing) {
+        this->god->stop();
+        this->setState(Paused);
+        qDebug() << "paused game";
+        return true;
+    } else {
+        qDebug() << "pause game failed";
+        return false;
+    }
+}
+
+void Snake::setState(GameState state)
+{
+    this->m_state = state;
+    emit stateChanged(state);
+}
+
+Snake::GameState Snake::state()
+{
+    return this->m_state;
 }
 
 bool Snake::addNode(Node *n)
@@ -46,6 +100,21 @@ void Snake::delNode(NodeType type, int at)
     delete n;
 }
 
+void Snake::clearNodes()
+{
+    int listSize;
+    for (NodeMap::Iterator i = this->m_nodes.begin();
+         i != this->m_nodes.end(); ++i) {
+        listSize = i.value().size();
+        for (int j = 0; j < listSize; ++j) {
+            this->delNode(i.key(), 0);
+            qDebug() << "removed node at " << i.key() << " ["
+                     << j << "]";
+        }
+    }
+
+}
+
 QPoint Snake::orientationPoint(Orientation o)
 {
     switch(o) {
@@ -71,18 +140,15 @@ Snake::Node* Snake::mkNode(QPoint pos, NodeType type, Orientation orientation)
     return n;
 }
 
-void Snake::start()
-{
-    this->god->start(200);
-    this->newApple();
-}
-
 void Snake::newApple(QPoint except)
 {
     QPoint p;
+    // get a random point that's on an empty position
     do {
         p = this->rndPoint();
-    } while ((!p.isNull() && p == except) || this->gridLookup.contains(p));
+    } while ((!p.isNull() && p == except)
+             || this->gridLookup.contains(p));
+
     this->addNode(this->mkNode(p, Apple, Nowhere));
     emit refreshNodes();
 }

@@ -8,6 +8,7 @@
 #include <QMap>
 #include <QHash>
 #include <QList>
+#include <QtDebug>
 
 class Snake : public QObject
 {
@@ -24,6 +25,14 @@ public:
     enum NodeType {
         SnakeBody,
         Apple
+    };
+
+    enum GameState {
+        Playing,
+        Paused,
+        Stopped,
+        Over,
+        Undefined
     };
 
     typedef struct {
@@ -43,15 +52,21 @@ public:
 
     QSize size();
 
+    GameState state();
+
 signals:
     void refreshNodes();
+    void stateChanged(GameState state);
 
 public slots:
-    void start();
+    bool start();
+    bool pause();
+    void init();
     void orient(Orientation o);
 
 private slots:
     void tick();
+    void setState(GameState state);
 
 private:
     NodeMap m_nodes;
@@ -60,11 +75,14 @@ private:
     bool addNode(Node *n);
     void delNode(NodeType type, int at);
     bool delNode(QPoint pos);   // slow
+    void clearNodes();
 
 
     QList<Node> snakeBody;
     QTimer *god;
     QSize m_size;
+
+    GameState m_state;
 
     void newApple(QPoint except = QPoint());
     QPoint rndPoint();

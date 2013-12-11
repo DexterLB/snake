@@ -12,20 +12,12 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->canvas->setSnake(this->snake);
     connect(this->snake, SIGNAL(refreshNodes()), this->ui->canvas, SLOT(update()));
 
-    connect(ui->eraseBtn, SIGNAL(clicked()), this, SLOT(erase()));
-    connect(ui->drawBtn, SIGNAL(clicked()), this, SLOT(draw()));
+    connect(ui->initBtn, SIGNAL(clicked()), this->snake, SLOT(init()));
+    connect(ui->startBtn, SIGNAL(clicked()), this->snake, SLOT(start()));
+    connect(ui->pauseBtn, SIGNAL(clicked()), this->snake, SLOT(pause()));
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
-}
-
-void MainWindow::draw()
-{
-    this->snake->start();
-}
-
-void MainWindow::erase()
-{
 }

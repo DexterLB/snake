@@ -21,8 +21,6 @@ private:
     Snake *snake;
 
 private slots:
-    void draw();
-    void erase();
 };
 
 #endif // MAINWINDOW_H
