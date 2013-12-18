@@ -164,7 +164,7 @@ void Snake::tick()
     QPoint newCoords = this->m_nodes[SnakeBody].last()->pos
             + orientationPoint(this->m_nodes[SnakeBody].last()->orientation);
 
-    // teleportation:
+    // edge teleportation:
     if (newCoords.x() >= this->size().width())
         newCoords.setX(0);
     if (newCoords.y() >= this->size().height())
