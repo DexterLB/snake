@@ -35,7 +35,8 @@ public:
      */
     enum NodeType {
         SnakeBody,  //! a single "joint" of the snake's body
-        Apple       //! an "apple", which makes the snake grow when eaten
+        Apple,      //! an "apple", which makes the snake grow when eaten
+        Obstacle    //! sudden death
     };
 
     /*!
@@ -112,6 +113,12 @@ public:
      */
     GameState state();
 
+    /*!
+     * \brief duh
+     * \return the snake's length
+     */
+    int snakeLength();
+
 signals:
     /*!
      * \brief field refresh signal
@@ -124,7 +131,12 @@ signals:
      * \brief game state change signal
      * \sa GameState
      */
-    void stateChanged(GameState state);
+    void stateChanged();
+
+    /*!
+     * \brief emitted when the snake grows
+     */
+    void snakeLengthChanged();
 
 public slots:
     /*!
@@ -159,6 +171,13 @@ private slots:
      * \brief triggered by God upon even intervals to measure time
      */
     void tick();
+
+    /*!
+     * \brief check if this move will result in game over
+     * \param coords the point which we'll be checking
+     * \return true if the point is deadly to the snake
+     */
+    bool checkGameOver(QPoint coords);
 
     /*!
      * \brief set the game state and emit the appropriate signals

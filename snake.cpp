@@ -59,12 +59,17 @@ bool Snake::pause()
 void Snake::setState(GameState state)
 {
     this->m_state = state;
-    emit stateChanged(state);
+    emit stateChanged();
 }
 
 Snake::GameState Snake::state()
 {
     return this->m_state;
+}
+
+int Snake::snakeLength()
+{
+    return this->m_nodes[SnakeBody].size();
 }
 
 bool Snake::addNode(Node *n)
@@ -159,10 +164,21 @@ QPoint Snake::rndPoint()
                   qrand() % this->size().height());
 }
 
+bool Snake::checkGameOver(QPoint coords)
+{
+    Node *n = this->gridLookup.value(coords);
+    if (n) {
+        return (n->type == SnakeBody || n->type == Obstacle);
+    } else {
+        return false;   // nothing there
+    }
+}
+
 void Snake::tick()
 {
     QPoint newCoords = this->m_nodes[SnakeBody].last()->pos
             + orientationPoint(this->m_nodes[SnakeBody].last()->orientation);
+
 
     // edge teleportation:
     if (newCoords.x() >= this->size().width())
@@ -174,22 +190,36 @@ void Snake::tick()
     if (newCoords.y() < 0)
         newCoords.setY(this->size().height() - 1);
 
+    bool snakeGrowFlag = false;
+    if (!this->checkGameOver(newCoords)) {
+        // now move to the new coords
 
-    if (this->gridLookup.contains(newCoords) &&
-            this->gridLookup.value(newCoords)->type == Apple) {
-        // delete the apple and make a new one
-        this->delNode(newCoords);
-        this->newApple(newCoords);
+        // check if there's an apple at the new position
+        if (this->gridLookup.contains(newCoords) &&
+                this->gridLookup.value(newCoords)->type == Apple) {
+            // delete the apple and make a new one
+            this->delNode(newCoords);
+            this->newApple(newCoords);
+            // not removing a node from the tail (growing)
+            snakeGrowFlag = true;
+        } else {
+            // remove a node at the "tail" only if not growing
+            this->delNode(SnakeBody, 0);
+        }
+
+        // add a node at the "head"
+        this->addNode(mkNode(newCoords, SnakeBody
+            , this->m_nodes[SnakeBody].last()->orientation));
+
+        emit refreshNodes();
+        if (snakeGrowFlag) {
+            emit snakeLengthChanged();
+        }
     } else {
-        // remove a node at the "tail" only if not growing
-        this->delNode(SnakeBody, 0);
+        // game over
+        this->god->stop();
+        this->setState(Over);
     }
-
-    // add a node at the "head"
-    this->addNode(mkNode(newCoords, SnakeBody
-        , this->m_nodes[SnakeBody].last()->orientation));
-
-    emit refreshNodes();
 }
 
 void Snake::orient(Orientation o)

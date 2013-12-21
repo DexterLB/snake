@@ -42,6 +42,15 @@ private:
     Snake *snake;
 
 private slots:
+    /*!
+     * \brief game state changed
+     */
+    void stateChanged();
+
+    /*!
+     * \brief snake length changed
+     */
+    void lengthChanged();
 };
 
 #endif // MAINWINDOW_H
