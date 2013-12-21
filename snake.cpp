@@ -212,7 +212,7 @@ void Snake::tick()
             , this->m_nodes[SnakeBody].last()->orientation));
 
         emit refreshNodes();
-        if (snakeGrowFlag) {
+        if (snakeGrowFlag) {    // fixme, I hate flags
             emit snakeLengthChanged();
         }
     } else {
@@ -240,5 +240,6 @@ QSize Snake::size()
 
 inline uint qHash(const QPoint &p)
 {
+    // here be dragons
     return qHash(((p.x() + p.y()) * (p.x() + p.y() + 1) + p.y()) / 2);
 }
