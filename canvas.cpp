@@ -52,7 +52,7 @@ void Canvas::drawNode(QPainter *painter, Snake::Node *node)
 
 QSize Canvas::nodeSize()
 {
-    return QSize(10, 10);   // pixels
+    return QSize(15, 15);   // pixels
 }
 
 QSize Canvas::pixelSize()
@@ -68,10 +68,15 @@ QPoint Canvas::pixelCoords(QPoint coords)
     return coords;
 }
 
-void Canvas::setSnake(Snake *s)
+void Canvas::sizeChanged()
 {
-    this->snake = s;
     this->setSizeIncrement(this->nodeSize());
     this->setFixedSize(this->pixelSize());
     this->updateGeometry();
+}
+
+void Canvas::setSnake(Snake *s)
+{
+    this->snake = s;
+    connect(this->snake, SIGNAL(sizeChanged()), this, SLOT(sizeChanged()));
 }

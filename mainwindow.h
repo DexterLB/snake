@@ -2,6 +2,10 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QString>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonArray>
 #include "snake.h"
 
 namespace Ui {
@@ -41,6 +45,13 @@ private:
      */
     Snake *snake;
 
+    /*!
+     * \brief reads map settings from a json file
+     * \param filename
+     * \return success value
+     */
+    bool readSettings(QString filename);
+
 private slots:
     /*!
      * \brief game state changed
@@ -51,6 +62,8 @@ private slots:
      * \brief snake length changed
      */
     void lengthChanged();
+
+    void initClicked();
 };
 
 #endif // MAINWINDOW_H

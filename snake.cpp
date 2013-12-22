@@ -5,7 +5,6 @@ Snake::Snake(QObject *parent) :
 {
 
     this->god = new QTimer();
-    this->m_size = QSize(50, 50);
     this->m_state = Undefined;
 
     connect(this->god, SIGNAL(timeout()), this, SLOT(tick()));
@@ -15,14 +14,9 @@ void Snake::init()
 {
     this->god->stop();
     this->god->setInterval(200);
+    this->m_size = QSize(40, 40);
 
     this->clearNodes();
-
-    this->addNode(mkNode(QPoint(0, 0), SnakeBody, Right));
-    this->addNode(mkNode(QPoint(1, 0), SnakeBody, Right));
-    this->addNode(mkNode(QPoint(2, 0), SnakeBody, Right));
-
-    this->newApple();
 
     qDebug() << "game init";
     this->setState(Stopped);
@@ -34,6 +28,9 @@ bool Snake::start()
     if (this->state() == Stopped
             || this->state() == Paused) {
         this->god->start();
+        if (this->m_nodes[Apple].isEmpty()) {
+            this->newApple();
+        }
         qDebug() << "started game";
         this->setState(Playing);
         return true;
@@ -60,6 +57,12 @@ void Snake::setState(GameState state)
 {
     this->m_state = state;
     emit stateChanged();
+}
+
+void Snake::setSize(QSize size)
+{
+    this->m_size = size;
+    emit sizeChanged();
 }
 
 Snake::GameState Snake::state()
@@ -120,6 +123,39 @@ void Snake::clearNodes()
 
 }
 
+Snake::NodeType Snake::typeFromString(QString s)
+{
+    if (s == "body")
+        return SnakeBody;
+    if (s == "obstacle")
+        return Obstacle;
+    if (s == "apple")
+        return Apple;
+    return Void;
+}
+
+Snake::Orientation Snake::orientationFromString(QString s)
+{
+    if (s == "left")
+        return Left;
+    if (s == "right")
+        return Right;
+    if (s == "up")
+        return Up;
+    if (s == "down")
+        return Down;
+    return Nowhere;
+}
+
+Snake::Bend Snake::bendFromString(QString s)
+{
+    if (s == "cw")
+        return BendClockwise;
+    if (s == "ccw")
+        return BendCounterclockwise;
+    return BendNone;
+}
+
 QPoint Snake::orientationPoint(Orientation o)
 {
     switch(o) {
@@ -136,12 +172,13 @@ QPoint Snake::orientationPoint(Orientation o)
     }
 }
 
-Snake::Node* Snake::mkNode(QPoint pos, NodeType type, Orientation orientation)
-{
+Snake::Node* Snake::mkNode(QPoint pos, NodeType type, Orientation orientation, NodeAttribute attr, Bend bend) {
     Node* n = new Node;
     n->pos = pos;
     n->orientation = orientation;
     n->type = type;
+    n->bend = bend;
+    n->attr = attr;
     return n;
 }
 
@@ -154,7 +191,7 @@ void Snake::newApple(QPoint except)
     } while ((!p.isNull() && p == except)
              || this->gridLookup.contains(p));
 
-    this->addNode(this->mkNode(p, Apple, Nowhere));
+    this->addNode(this->mkNode(p, Apple, Nowhere, AttrApple, BendNone));
     emit refreshNodes();
 }
 
@@ -205,11 +242,17 @@ void Snake::tick()
         } else {
             // remove a node at the "tail" only if not growing
             this->delNode(SnakeBody, 0);
+            // the new first node now becomes the tail
+            this->m_nodes[SnakeBody].first()->attr = AttrSnakeTail;
         }
+
+        // the old head now becomes part of the torso
+        this->m_nodes[SnakeBody].last()->attr = AttrSnakeTorso;
 
         // add a node at the "head"
         this->addNode(mkNode(newCoords, SnakeBody
-            , this->m_nodes[SnakeBody].last()->orientation));
+            , this->m_nodes[SnakeBody].last()->orientation
+            , AttrSnakeHead, BendNone));
 
         emit refreshNodes();
         if (snakeGrowFlag) {    // fixme, I hate flags

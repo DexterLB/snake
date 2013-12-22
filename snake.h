@@ -31,12 +31,13 @@ public:
     };
 
     /*!
-     * \brief All possible node types
+     * \brief all possible node types
      */
     enum NodeType {
         SnakeBody,  //! a single "joint" of the snake's body
         Apple,      //! an "apple", which makes the snake grow when eaten
-        Obstacle    //! sudden death
+        Obstacle,   //! sudden death
+        Void        //! passthrough
     };
 
     /*!
@@ -51,6 +52,26 @@ public:
     };
 
     /*!
+     * \brief extra attributes (mostly for visual representation)
+     */
+    enum NodeAttribute {
+        AttrSnakeTorso = 0,
+        AttrSnakeHead = 1,
+        AttrSnakeTail = 2,
+        AttrApple = 3,
+    };
+
+    /*!
+     * \brief node "bend", for strings of nodes that cut corners
+     * namely the snake's body
+     */
+    enum Bend {
+        BendNone,
+        BendClockwise,
+        BendCounterclockwise
+    };
+
+    /*!
      * \brief a single node
      * this is the main datatype for the game. a "node" is a single object
      * that might be placed on a certain position on the field. nodes can be
@@ -59,6 +80,8 @@ public:
     typedef struct {
         QPoint pos;                 //! the position on the field. NOT in pixels!
         Orientation orientation;    //! each node can have an orientation
+        Bend bend;
+        NodeAttribute attr;
         NodeType type;
     } Node;
 
@@ -86,7 +109,7 @@ public:
      * \brief create a node and return a pointer to it
      * a convenience function that creates a new struct
      */
-    static Node* mkNode(QPoint pos, NodeType type, Orientation orientation);
+    static Node* mkNode(QPoint pos, NodeType type, Orientation orientation, NodeAttribute attr, Bend bend);
 
     /*!
      * \brief get the vector of an Orientation
@@ -119,80 +142,25 @@ public:
      */
     int snakeLength();
 
-signals:
     /*!
-     * \brief field refresh signal
-     * this is emitted when there's any change on the field, and it needs
-     * to be redrawn.
+     * \brief convert a string to NodeType
+     * \param s "(obstacle|body|apple|void)"
+     * \return NodeType
      */
-    void refreshNodes();
+    static NodeType typeFromString(QString s);
+    /*!
+     * \brief convert a string to Orientation
+     * \param s "(left|right|up|down|nowhere|.*)"
+     * \return Orientation
+     */
+    static Orientation orientationFromString(QString s);
 
     /*!
-     * \brief game state change signal
-     * \sa GameState
+     * \brief convert a string to Bend
+     * \param s "(cw|ccw|none)"
+     * \return Bend
      */
-    void stateChanged();
-
-    /*!
-     * \brief emitted when the snake grows
-     */
-    void snakeLengthChanged();
-
-public slots:
-    /*!
-     * \brief start the game (both initial start and unpause)
-     * \return success value: false if game is already started
-     * will emit stateChanged()
-     */
-    bool start();
-
-    /*!
-     * \brief pause the game
-     * \return success value: false if game is not started
-     */
-    bool pause();
-
-    /*!
-     * \brief initialize the field
-     * must run this before starting the game, or there will be segfaults!
-     */
-    void init();
-
-    /*!
-     * \brief set the orientation (direction) of the snake
-     * \param o the orientation
-     * sets the orientation of the snake's "head" node, which determines the
-     * snake's "global" orientation
-     */
-    void orient(Orientation o);
-
-private slots:
-    /*!
-     * \brief triggered by God upon even intervals to measure time
-     */
-    void tick();
-
-    /*!
-     * \brief check if this move will result in game over
-     * \param coords the point which we'll be checking
-     * \return true if the point is deadly to the snake
-     */
-    bool checkGameOver(QPoint coords);
-
-    /*!
-     * \brief set the game state and emit the appropriate signals
-     */
-    void setState(GameState state);
-
-private:
-    /*!
-     * \sa NodeMap
-     */
-    NodeMap m_nodes;
-    /*!
-     * \sa NodeGrid
-     */
-    NodeGrid gridLookup;
+    static Bend bendFromString(QString s);
 
     /*!
      * \brief add a node to the lookup tables
@@ -222,6 +190,82 @@ private:
     void clearNodes();
 
     /*!
+     * \brief set the field size
+     * \param size
+     */
+    void setSize(QSize size);
+
+signals:
+    /*!
+     * \brief field refresh signal
+     * this is emitted when there's any change on the field, and it needs
+     * to be redrawn.
+     */
+    void refreshNodes();
+
+    /*!
+     * \brief game state change signal
+     * \sa GameState
+     */
+    void stateChanged();
+
+    /*!
+     * \brief emitted when the snake grows
+     */
+    void snakeLengthChanged();
+
+    /*!
+     * \brief emitted when the field size changes
+     */
+    void sizeChanged();
+
+public slots:
+    /*!
+     * \brief start the game (both initial start and unpause)
+     * \return success value: false if game is already started
+     * will emit stateChanged()
+     */
+    bool start();
+
+    /*!
+     * \brief pause the game
+     * \return success value: false if game is not started
+     */
+    bool pause();
+
+    /*!
+     * \brief initialize the field
+     * must run this before starting the game, or there will be segfaults!
+     */
+    void init();
+
+    /*!
+     * \brief set the orientation (direction) of the snake
+     * \param o the orientation
+     * sets the orientation of the snake's "head" node, which determines the
+     * snake's "global" orientation
+     */
+    void orient(Orientation o);
+
+
+
+private slots:
+    /*!
+     * \brief triggered by God upon even intervals to measure time
+     */
+    void tick();
+
+    /*!
+     * \brief check if this move will result in game over
+     * \param coords the point which we'll be checking
+     * \return true if the point is deadly to the snake
+     */
+    bool checkGameOver(QPoint coords);
+
+
+
+private:
+    /*!
      * \brief the Allmighty
      * Thee who measures time
      */
@@ -237,6 +281,19 @@ private:
      * \sa GameState
      */
     GameState m_state;
+
+    /*!
+     * \brief set the game state and emit the appropriate signals
+     */
+    void setState(GameState state);
+    /*!
+     * \sa NodeMap
+     */
+    NodeMap m_nodes;
+    /*!
+     * \sa NodeGrid
+     */
+    NodeGrid gridLookup;
 
     /*!
      * \brief get a new apple

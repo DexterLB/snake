@@ -81,6 +81,12 @@ protected:
      * (in most cases this requires the widget to be focused)
      */
     void keyPressEvent(QKeyEvent *event);
+
+private slots:
+    /*!
+     * \brief upon field size change
+     */
+    void sizeChanged();
 };
 
 #endif // CANVAS_H
