@@ -44,10 +44,28 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+void MainWindow::clearPixmaps()
+{
+    Canvas::PixmapId key;
+    QList<QPixmap*> deletedPixmaps;
+    while (!this->pixmaps.isEmpty()) {
+        key = this->pixmaps.keys().first();
+        for (Canvas::PixmapMap::iterator i = this->pixmaps.find(key);
+             (i != this->pixmaps.end() && i.key() == key ); ++i) {
+            if (!deletedPixmaps.contains((*i))) {
+                delete (*i);
+                deletedPixmaps << (*i);
+            }
+        }
+        this->pixmaps.remove(key);
+    }
+}
+
 bool MainWindow::readSettings(QString filename)
 {
     /*
      * in this function there be returns everywhere!
+     * todo: make it prettier
      */
 
     this->snake->init();
@@ -74,6 +92,7 @@ bool MainWindow::readSettings(QString filename)
 
     QSize size;
 
+    // get size
     val = root.value(QString("size"));
     if (val.toArray().size() != 2) {
         qDebug() << "size is not a tuple" << val.toArray().toVariantList();
@@ -87,8 +106,10 @@ bool MainWindow::readSettings(QString filename)
     }
     this->snake->setSize(size);
 
+    // get speed
     this->snake->setSpeed(root.value(QString("speed")).toInt(200));
 
+    // get all nodes
     val = root.value(QString("nodes"));
     if (!val.isArray()) {
         qDebug() << "nodes is not an array";
@@ -129,6 +150,8 @@ bool MainWindow::readSettings(QString filename)
         this->snake->addNode(Snake::mkNode(pos, type, orientation, attr, bend));
     }
 
+    // get pixmaps
+    this->clearPixmaps();
     val = root.value(QString("pixmaps"));
     if (!val.isArray()) {
         qDebug() << "nodes is not an array";

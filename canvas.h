@@ -113,12 +113,23 @@ private slots:
     void sizeChanged();
 };
 
+/*!
+ * \brief hashing function for PixmapID
+ * \param id duh!
+ * \return a value that is (probably) different for different id's
+ */
 inline uint qHash(const Canvas::PixmapId &id)
 {
     // even more dragons
     return qHash(((((int)id.attr + (int)id.bend) * ((int)id.attr + (int)id.bend + 1) + (int)id.bend)) / 2);
 }
 
+/*!
+ * \brief comparison of two PixmapIDs
+ * \param a
+ * \param b
+ * \return a == b
+ */
 inline bool operator==(const Canvas::PixmapId a, const Canvas::PixmapId b) {
     return (a.attr == b.attr) && (a.bend == b.bend);
 }

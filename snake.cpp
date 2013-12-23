@@ -285,9 +285,3 @@ QSize Snake::size()
 {
     return this->m_size;
 }
-
-inline uint qHash(const QPoint &p)
-{
-    // here be dragons
-    return qHash(((p.x() + p.y()) * (p.x() + p.y() + 1) + p.y()) / 2);
-}

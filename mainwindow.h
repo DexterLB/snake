@@ -53,6 +53,9 @@ private:
      */
     bool readSettings(QString filename);
 
+    /*!
+     * \brief all pixmaps for rendering nodes
+     */
     Canvas::PixmapMap pixmaps;
 
 private slots:
@@ -65,6 +68,11 @@ private slots:
      * \brief snake length changed
      */
     void lengthChanged();
+
+    /*!
+     * \brief nuke ALL teh pixmaps!
+     */
+    void clearPixmaps();
 
     void initClicked();
 };

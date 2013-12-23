@@ -316,4 +316,16 @@ private:
     QPoint rndPoint();
 };
 
+/*!
+ * \brief hash function for QPoint
+ * \param p a QPoint
+ * \return a value that's (probably) different for different points
+ */
+inline uint qHash(const QPoint &p)
+{
+    // here be dragons
+    return qHash(((p.x() + p.y()) * (p.x() + p.y() + 1) + p.y()) / 2);
+}
+
+
 #endif // SNAKE_H
