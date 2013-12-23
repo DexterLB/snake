@@ -195,6 +195,12 @@ public:
      */
     void setSize(QSize size);
 
+    /*!
+     * \brief set the game speed
+     * \param speed inverse speed (kHz^-1 = msec)
+     */
+    void setSpeed(int speed);
+
 signals:
     /*!
      * \brief field refresh signal

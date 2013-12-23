@@ -7,6 +7,7 @@
 #include <QJsonObject>
 #include <QJsonArray>
 #include "snake.h"
+#include "canvas.h"
 
 namespace Ui {
 class MainWindow;
@@ -51,6 +52,8 @@ private:
      * \return success value
      */
     bool readSettings(QString filename);
+
+    Canvas::PixmapMap pixmaps;
 
 private slots:
     /*!

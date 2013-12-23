@@ -6,6 +6,8 @@
 #include <QtDebug>
 #include <QList>
 #include <QKeyEvent>
+#include <QMultiHash>
+#include <QPixmap>
 
 #include "snake.h"
 /*!
@@ -45,6 +47,28 @@ public:
      * \param s the Snake class this widget will be an interface to
      */
     void setSnake(Snake *s);
+
+    /*!
+     * \brief pixmap identification
+     * the properties of a node that are sufficient to assign
+     * a pixmap to it
+     */
+    typedef struct {
+        Snake::NodeAttribute attr;
+        Snake::Bend bend;
+    } PixmapId;
+
+    /*!
+     * \brief stores a list of all pixmaps for all possible nodes
+     */
+    typedef QMultiHash<PixmapId, QPixmap*> PixmapMap;
+
+    /*!
+     * \brief pixmapIdFromNode
+     * \param n a node
+     * \return PixmapId
+     */
+    PixmapId pixmapIdFromNode(Snake::Node n);
 
 signals:
 
@@ -88,5 +112,15 @@ private slots:
      */
     void sizeChanged();
 };
+
+inline uint qHash(const Canvas::PixmapId &id)
+{
+    // even more dragons
+    return qHash(((((int)id.attr + (int)id.bend) * ((int)id.attr + (int)id.bend + 1) + (int)id.bend)) / 2);
+}
+
+inline bool operator==(const Canvas::PixmapId a, const Canvas::PixmapId b) {
+    return (a.attr == b.attr) && (a.bend == b.bend);
+}
 
 #endif // CANVAS_H

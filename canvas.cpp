@@ -80,3 +80,11 @@ void Canvas::setSnake(Snake *s)
     this->snake = s;
     connect(this->snake, SIGNAL(sizeChanged()), this, SLOT(sizeChanged()));
 }
+
+Canvas::PixmapId Canvas::pixmapIdFromNode(Snake::Node n)
+{
+    PixmapId p;
+    p.attr = n.attr;
+    p.bend = n.bend;
+    return p;
+}

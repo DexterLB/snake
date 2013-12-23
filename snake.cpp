@@ -65,6 +65,11 @@ void Snake::setSize(QSize size)
     emit sizeChanged();
 }
 
+void Snake::setSpeed(int speed)
+{
+    this->god->setInterval(speed);
+}
+
 Snake::GameState Snake::state()
 {
     return this->m_state;

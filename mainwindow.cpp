@@ -55,7 +55,7 @@ bool MainWindow::readSettings(QString filename)
     QFile file(filename);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
         qDebug() << "failed to open file " << filename;
-        return false;   // ******************
+        return false;
     }
     QJsonObject root;
     {
@@ -66,7 +66,7 @@ bool MainWindow::readSettings(QString filename)
         if (err.error != QJsonParseError::NoError) {
             qDebug() << "json parse error: " << err.errorString() << " at " << err.offset;
             qDebug() << data.insert(err.offset - 1, "<!>");
-            return false;   // ******************
+            return false;
         }
         root = doc.object();
     }
@@ -87,13 +87,15 @@ bool MainWindow::readSettings(QString filename)
     }
     this->snake->setSize(size);
 
+    this->snake->setSpeed(root.value(QString("speed")).toInt(200));
+
     val = root.value(QString("nodes"));
     if (!val.isArray()) {
         qDebug() << "nodes is not an array";
         return false;
     }
     QJsonObject obj;
-    QJsonArray arr;
+    QJsonArray arr, arr2;
     Snake::NodeType type;
     Snake::NodeAttribute attr;
     Snake::Orientation orientation;
@@ -127,5 +129,50 @@ bool MainWindow::readSettings(QString filename)
         this->snake->addNode(Snake::mkNode(pos, type, orientation, attr, bend));
     }
 
+    val = root.value(QString("pixmaps"));
+    if (!val.isArray()) {
+        qDebug() << "nodes is not an array";
+        return false;
+    }
+
+    QPixmap *p;
+    Canvas::PixmapId id;
+    for (QJsonArray::ConstIterator i = val.toArray().constBegin();
+         i != val.toArray().constEnd(); ++i) {
+        obj = (*i).toObject();
+        p = new QPixmap(obj.value(QString("file")).toString());
+        if (p->isNull()) {
+            qDebug() << "invalid pixmap";
+            delete p;
+            return false;
+        }
+        arr = obj.value(QString("attrs")).toArray();
+        arr2 = obj.value(QString("bend")).toArray();
+        for (QJsonArray::ConstIterator j = arr.constBegin();
+             j != arr.constEnd(); ++j) {
+            if (!((*j).isDouble())) {
+                qDebug() << "attr isn't a number";
+                delete p;
+                return false;
+            }
+            id.attr = (Snake::NodeAttribute)((*j).toInt());
+            if (arr2.isEmpty()) {
+                // fill all bends with this pixmap
+                // todo: find a proper way to iterate over an enum
+                id.bend = Snake::BendNone;
+                this->pixmaps.insert(id, p);
+                id.bend = Snake::BendCounterclockwise;
+                this->pixmaps.insert(id, p);
+                id.bend = Snake::BendClockwise;
+                this->pixmaps.insert(id, p);
+            } else {
+                for (QJsonArray::ConstIterator k = arr2.constBegin();
+                     k != arr2.constEnd(); ++k) {
+                    id.bend = Snake::bendFromString((*k).toString("none"));
+                    this->pixmaps.insert(id, p);
+                }
+            }
+        }
+    }
     return true;
 }
