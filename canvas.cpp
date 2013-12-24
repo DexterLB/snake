@@ -50,6 +50,10 @@ void Canvas::paintEvent(QPaintEvent * /* event */)
 {
     qDebug() << "entered paint event";
     QPainter painter(this);
+    painter.setRenderHint(QPainter::Antialiasing);
+    painter.setRenderHint(QPainter::SmoothPixmapTransform);
+    qDebug() << "render hints: " << painter.renderHints();
+
     QTransform transform;   // coordinate system transform matrix
                             // woo fancy words
     transform *= this->keepAspect();
@@ -108,9 +112,19 @@ void Canvas::drawNode(QPainter *painter, QTransform transform, Snake::Node *node
 
     painter->setTransform(transform);
 
+    // because of a bug in Qt antialiased rendering on
+    // a transformed coordinate system doesn't work.
+    // fixme
+    /*
     static const QRectF source(QPointF(0, 0), p->size());    // the entire pixmap
     static const QRectF target(QPointF(-0.5, -0.5), QSizeF(1, 1));
     painter->drawPixmap(target, *p, source);
+    */
+
+    // workaround is to first do the scaling
+    static const QRectF source(QPointF(0, 0), QSizeF((int)this->nodeSize().width(), (int)this->nodeSize().height()));    // the entire pixmap
+    static const QRectF target(QPointF(-0.5, -0.5), QSizeF(1, 1));
+    painter->drawPixmap(target, p->scaled((int)this->nodeSize().width(), (int)this->nodeSize().height(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation), source);
 }
 
 QSizeF Canvas::nodeSize()
