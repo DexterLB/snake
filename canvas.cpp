@@ -59,7 +59,7 @@ void Canvas::drawNode(QPainter *painter, QTransform transform, Snake::Node *node
     // painter->drawRect(QRect(this->pixelCoords(node->pos), this->nodeSize()));
     QPixmap *p = this->m_pixmaps->value(this->pixmapIdFromNode(*node));
 
-    // set the position
+    // set the position to the centre of the node we're drawing
     transform.translate((qreal)(node->pos.x()) + 0.5, (qreal)(node->pos.y()) + 0.5);
     transform.rotate(Snake::orientationAngle(node->orientation));
 
