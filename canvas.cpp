@@ -3,13 +3,6 @@
 Canvas::Canvas(QWidget *parent) :
     QWidget(parent)
 {
-    /*
-    this->setSizeIncrement(this->nodeSize());
-    this->setBaseSize(this->matrixSize());
-    this->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-    */
-    //this->setBackgroundRole(QPalette::Base);
-    //this->setAutoFillBackground(true);
     this->m_nodeAspect = 1;
 }
 
