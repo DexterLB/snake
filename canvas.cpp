@@ -8,8 +8,42 @@ Canvas::Canvas(QWidget *parent) :
     this->setBaseSize(this->matrixSize());
     this->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     */
-    this->setBackgroundRole(QPalette::Base);
-    this->setAutoFillBackground(true);
+    //this->setBackgroundRole(QPalette::Base);
+    //this->setAutoFillBackground(true);
+    this->m_nodeAspect = 1;
+}
+
+void Canvas::setNodeAspect(qreal a)
+{
+    this->m_nodeAspect = a;
+}
+
+qreal Canvas::aspect()
+{
+    return this->m_nodeAspect * ((qreal)this->snake->size().width()
+                                 / this->snake->size().height());
+}
+
+QTransform Canvas::keepAspect()
+{
+    QTransform transform;
+
+    int newWidth = qMin(this->width()
+                        , (int)(this->height() * this->aspect()));
+    int newHeight = qMin(this->height()
+                         , (int)(this->width() / this->aspect()));
+
+
+    // center
+    transform.translate((this->width() - newWidth) / 2,
+                        (this->height() - newHeight) / 2);
+
+    // scale to new size
+    transform.scale((qreal)newWidth / this->width()
+                              , (qreal)newHeight / this->height());
+
+
+    return transform;
 }
 
 void Canvas::paintEvent(QPaintEvent * /* event */)
@@ -18,9 +52,14 @@ void Canvas::paintEvent(QPaintEvent * /* event */)
     QPainter painter(this);
     QTransform transform;   // coordinate system transform matrix
                             // woo fancy words
+    transform *= this->keepAspect();
 
     // make the coordinate system use "nodes" instead of "pixels"
     transform.scale(this->nodeSize().width(), this->nodeSize().height());
+
+    painter.setTransform(transform);
+
+    this->drawBackground(&painter);
 
     // iterate over all nodes and draw them
     Snake::NodeMap nm = this->snake->nodes();
@@ -30,6 +69,11 @@ void Canvas::paintEvent(QPaintEvent * /* event */)
             this->drawNode(&painter, transform, (*i).value(j));
         }
     }
+}
+
+void Canvas::drawBackground(QPainter *painter)
+{
+    painter->fillRect(QRect(QPoint(0, 0), this->snake->size()), QBrush(QColor(0xebd9bf)));
 }
 
 void Canvas::keyPressEvent(QKeyEvent *event)
@@ -64,20 +108,15 @@ void Canvas::drawNode(QPainter *painter, QTransform transform, Snake::Node *node
 
     painter->setTransform(transform);
 
-    static const QRectF source(QPointF(0, 0), QSizeF(p->size()));    // the entire pixmap
+    static const QRectF source(QPointF(0, 0), p->size());    // the entire pixmap
     static const QRectF target(QPointF(-0.5, -0.5), QSizeF(1, 1));
     painter->drawPixmap(target, *p, source);
 }
 
-QSize Canvas::nodeSize()
+QSizeF Canvas::nodeSize()
 {
-    return QSize(15, 15);   // pixels
-}
-
-QSize Canvas::pixelSize()
-{
-    return QSize(this->nodeSize().width() * this->snake->size().width()
-            , this->nodeSize().height() * this->snake->size().height());
+    return QSizeF((qreal)(this->size().width()) / this->snake->size().width()
+                , (qreal)(this->size().height()) / this->snake->size().height());
 }
 
 QPoint Canvas::pixelCoords(QPoint coords)
@@ -89,9 +128,7 @@ QPoint Canvas::pixelCoords(QPoint coords)
 
 void Canvas::sizeChanged()
 {
-    this->setSizeIncrement(this->nodeSize());
-    this->setFixedSize(this->pixelSize());
-    this->updateGeometry();
+    this->update();
 }
 
 void Canvas::setSnake(Snake *s)

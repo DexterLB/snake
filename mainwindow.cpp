@@ -110,6 +110,10 @@ bool MainWindow::readSettings(QString filename)
     // get speed
     this->snake->setSpeed(root.value(QString("speed")).toInt(200));
 
+    // get node aspect ratio
+    this->ui->canvas->setNodeAspect(
+                root.value(QString("aspect")).toDouble(1));
+
     // get all nodes
     val = root.value(QString("nodes"));
     if (!val.isArray()) {

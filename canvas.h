@@ -45,13 +45,7 @@ public:
      * \brief the size of a single node in pixels
      * \return size of a single node
      */
-    QSize nodeSize();
-
-    /*!
-     * \brief the size of the entire widget in pixels
-     * \return size of the widget (excluding external borders)
-     */
-    QSize pixelSize();
+    QSizeF nodeSize();
 
     /*!
      * \brief convert node coordinates to pixel coordinates
@@ -59,6 +53,13 @@ public:
      * \return calculated coordinates in pixels
      */
     QPoint pixelCoords(QPoint coords);
+
+    /*!
+     * \brief set the aspect ratio for a single node
+     * (don't really see when this won't be 1, but hey!)
+     * \param a width/height
+     */
+    void setNodeAspect(qreal a);
 
     /*!
      * \brief set the Snake class to be used. Must be done before update()
@@ -95,6 +96,11 @@ private:
     PixmapMap *m_pixmaps;
 
     /*!
+     * \brief aspect ratio for a single node
+     */
+    qreal m_nodeAspect;
+
+    /*!
      * \brief draw a single node on the canvas
      * \param painter a QPainter that paints on the widget
      * \param transform the base transform matrix
@@ -103,6 +109,25 @@ private:
      * nodes must be redrawn on widget updates
      */
     void drawNode(QPainter *painter, QTransform transform, Snake::Node *node);
+
+    /*!
+     * \brief transform the drawing area in order to keep the aspect ratio
+     * \return transform matrix
+     */
+    QTransform keepAspect();
+
+    /*!
+     * \brief aspect ratio for the entire field
+     * \return width/height
+     */
+    qreal aspect();
+
+
+
+    /*!
+     * \brief sets the background (only of the field area)
+     */
+    void drawBackground(QPainter *painter);
 
 protected:
     /*!
