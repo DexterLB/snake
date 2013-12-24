@@ -104,6 +104,9 @@ void Canvas::drawNode(QPainter *painter, QTransform transform, Snake::Node *node
 {
     // painter->drawRect(QRect(this->pixelCoords(node->pos), this->nodeSize()));
     QPixmap *p = this->m_pixmaps->value(this->pixmapIdFromNode(*node));
+    if (!p) {
+        return; // NO SEGFAULTS ALLOWED
+    }
 
     // set the position to the centre of the node we're drawing
     transform.translate((qreal)(node->pos.x()) + 0.5, (qreal)(node->pos.y()) + 0.5);
@@ -115,6 +118,7 @@ void Canvas::drawNode(QPainter *painter, QTransform transform, Snake::Node *node
     // because of a bug in Qt antialiased rendering on
     // a transformed coordinate system doesn't work.
     // fixme
+
     /*
     static const QRectF source(QPointF(0, 0), p->size());    // the entire pixmap
     static const QRectF target(QPointF(-0.5, -0.5), QSizeF(1, 1));
