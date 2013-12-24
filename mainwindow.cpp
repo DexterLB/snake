@@ -5,6 +5,9 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
+    // init random number generator
+    qsrand(QTime::currentTime().msec());
+
     ui->setupUi(this);
 
     this->snake = new Snake();

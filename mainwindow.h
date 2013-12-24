@@ -6,6 +6,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>
+#include <QTime>
 #include "snake.h"
 #include "canvas.h"
 
