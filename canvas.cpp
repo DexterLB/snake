@@ -66,8 +66,8 @@ void Canvas::drawNode(QPainter *painter, QTransform transform, Snake::Node *node
 
     painter->setTransform(transform);
 
-    QRectF source(QPointF(0, 0), QSizeF(p->size()));    // the entire pixmap
-    QRectF target(QPointF(-0.5, -0.5), QSizeF(1, 1));
+    static const QRectF source(QPointF(0, 0), QSizeF(p->size()));    // the entire pixmap
+    static const QRectF target(QPointF(-0.5, -0.5), QSizeF(1, 1));
     painter->drawPixmap(target, *p, source);
 }
 
