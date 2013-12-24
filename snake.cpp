@@ -308,14 +308,29 @@ Snake::Bend Snake::bendFromOrientation(Orientation a, Orientation b)
     return BendNone;
 }
 
-void Snake::orient(Orientation o)
+bool Snake::areOpposite(Orientation a, Orientation b)
+{
+    if (a == Nowhere || b == Nowhere) {
+        return false;
+    }
+    // opposite directions are spaced 2 apart
+    return (abs(a - b) == 2);
+}
+
+bool Snake::orient(Orientation o)
 {
     if (this->lastOrientation == Nowhere)
         this->lastOrientation = this->m_nodes[SnakeBody].last()->orientation;
+
+    if (areOpposite(o, this->lastOrientation)) {
+        return false;
+    }
+
     this->m_nodes[SnakeBody].last()->bend = this->bendFromOrientation(
                 lastOrientation, o);
     this->m_nodes[SnakeBody].last()->orientation = o;
     emit refreshNodes();
+    return true;
 }
 
 Snake::NodeMap Snake::nodes()

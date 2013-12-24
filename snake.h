@@ -152,6 +152,14 @@ public:
     int snakeLength();
 
     /*!
+     * \brief check if two orientations are opposite
+     * \param a
+     * \param b
+     * \return true if a is opposite to b
+     */
+    bool areOpposite(Orientation a, Orientation b);
+
+    /*!
      * \brief convert a string to NodeType
      * \param s "(obstacle|body|apple|void)"
      * \return NodeType
@@ -268,7 +276,7 @@ public slots:
      * sets the orientation of the snake's "head" node, which determines the
      * snake's "global" orientation
      */
-    void orient(Orientation o);
+    bool orient(Orientation o);
 
 
 
