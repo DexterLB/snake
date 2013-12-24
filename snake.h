@@ -114,12 +114,20 @@ public:
     /*!
      * \brief get the vector of an Orientation
      * \param o the orientation
+     * \return a vector QPoint
      * returns a (vector) point that lies at a distance 1 from (0, 0) at the
      * direction specified by o
      * in other words when added to another point it will move it with one
      * step at the given direction
      */
     static QPoint orientationPoint(Orientation o);
+
+    /*!
+     * \brief get the angle of an Orientation in degrees
+     * \param o the orientation
+     * \return angle in degrees (wtf, why degrees and not radians?)
+     */
+    static qreal orientationAngle(Orientation o);
 
     /*!
      * \brief get the node list

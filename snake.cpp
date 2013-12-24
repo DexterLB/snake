@@ -177,6 +177,22 @@ QPoint Snake::orientationPoint(Orientation o)
     }
 }
 
+qreal Snake::orientationAngle(Orientation o)
+{
+    switch(o) {
+    case Up:
+        return 0;
+    case Down:
+        return 180;
+    case Left:
+        return -90;
+    case Right:
+        return 90;
+    default:
+        return 0;
+    }
+}
+
 Snake::Node* Snake::mkNode(QPoint pos, NodeType type, Orientation orientation, NodeAttribute attr, Bend bend) {
     Node* n = new Node;
     n->pos = pos;

@@ -8,6 +8,9 @@
 #include <QKeyEvent>
 #include <QMultiHash>
 #include <QPixmap>
+#include <QPointF>
+#include <QSizeF>
+#include <QTransform>
 
 #include "snake.h"
 /*!
@@ -22,6 +25,21 @@ public:
      * \brief constructor
      */
     explicit Canvas(QWidget *parent = 0);
+
+    /*!
+     * \brief pixmap identification
+     * the properties of a node that are sufficient to assign
+     * a pixmap to it
+     */
+    typedef struct {
+        Snake::NodeAttribute attr;
+        Snake::Bend bend;
+    } PixmapId;
+
+    /*!
+     * \brief stores a list of all pixmaps for all possible nodes
+     */
+    typedef QMultiHash<PixmapId, QPixmap*> PixmapMap;
 
     /*!
      * \brief the size of a single node in pixels
@@ -43,32 +61,23 @@ public:
     QPoint pixelCoords(QPoint coords);
 
     /*!
-     * \brief set the Snake class to be used
+     * \brief set the Snake class to be used. Must be done before update()
      * \param s the Snake class this widget will be an interface to
      */
     void setSnake(Snake *s);
 
     /*!
-     * \brief pixmap identification
-     * the properties of a node that are sufficient to assign
-     * a pixmap to it
+     * \brief set the pixmap map. Must be done before update()
+     * \param p pointer to an external PixmapMap
      */
-    typedef struct {
-        Snake::NodeAttribute attr;
-        Snake::Bend bend;
-    } PixmapId;
-
-    /*!
-     * \brief stores a list of all pixmaps for all possible nodes
-     */
-    typedef QMultiHash<PixmapId, QPixmap*> PixmapMap;
+    void setPixmaps(PixmapMap *p);
 
     /*!
      * \brief pixmapIdFromNode
      * \param n a node
      * \return PixmapId
      */
-    PixmapId pixmapIdFromNode(Snake::Node n);
+    PixmapId pixmapIdFromNode(Snake::Node &n);
 
 signals:
 
@@ -81,11 +90,19 @@ private:
     Snake *snake;
 
     /*!
+     * \brief all pixmaps to be used for rendering nodes
+     */
+    PixmapMap *m_pixmaps;
+
+    /*!
      * \brief draw a single node on the canvas
+     * \param painter a QPainter that paints on the widget
+     * \param transform the base transform matrix
+     * \param node the node
      * must be called from inside an expose (paint) event
      * nodes must be redrawn on widget updates
      */
-    void drawNode(QPainter *painter, Snake::Node *node);
+    void drawNode(QPainter *painter, QTransform transform, Snake::Node *node);
 
 protected:
     /*!

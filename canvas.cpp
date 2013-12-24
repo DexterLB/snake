@@ -16,11 +16,20 @@ void Canvas::paintEvent(QPaintEvent * /* event */)
 {
     qDebug() << "entered paint event";
     QPainter painter(this);
+    QTransform transform;   // coordinate system transform matrix
+                            // woo fancy words
+
+    // make the coordinate system use "nodes" instead of "pixels"
+    transform.scale(this->nodeSize().width(), this->nodeSize().height());
+
+    // iterate over all nodes and draw them
     Snake::NodeMap nm = this->snake->nodes();
     for (Snake::NodeMap::ConstIterator i = nm.constBegin();
          i != nm.constEnd(); ++i) {
         for (int j = 0; j != (*i).size(); ++j) {
-            this->drawNode(&painter, (*i).value(j));
+            if ((*i).value(j)->bend != Snake::BendNone)
+                qDebug() << "bend";
+            this->drawNode(&painter, transform, (*i).value(j));
         }
     }
 }
@@ -45,9 +54,21 @@ void Canvas::keyPressEvent(QKeyEvent *event)
     }
 }
 
-void Canvas::drawNode(QPainter *painter, Snake::Node *node)
+void Canvas::drawNode(QPainter *painter, QTransform transform, Snake::Node *node)
 {
-    painter->drawRect(QRect(this->pixelCoords(node->pos), this->nodeSize()));
+    // painter->drawRect(QRect(this->pixelCoords(node->pos), this->nodeSize()));
+    QPixmap *p = this->m_pixmaps->value(this->pixmapIdFromNode(*node));
+
+    // set the position
+    transform.translate((qreal)(node->pos.x()) + 0.5, (qreal)(node->pos.y()) + 0.5);
+    transform.rotate(Snake::orientationAngle(node->orientation));
+
+
+    painter->setTransform(transform);
+
+    QRectF source(QPointF(0, 0), QSizeF(p->size()));    // the entire pixmap
+    QRectF target(QPointF(-0.5, -0.5), QSizeF(1, 1));
+    painter->drawPixmap(target, *p, source);
 }
 
 QSize Canvas::nodeSize()
@@ -81,7 +102,12 @@ void Canvas::setSnake(Snake *s)
     connect(this->snake, SIGNAL(sizeChanged()), this, SLOT(sizeChanged()));
 }
 
-Canvas::PixmapId Canvas::pixmapIdFromNode(Snake::Node n)
+void Canvas::setPixmaps(PixmapMap *p)
+{
+    this->m_pixmaps = p;
+}
+
+Canvas::PixmapId Canvas::pixmapIdFromNode(Snake::Node &n)
 {
     PixmapId p;
     p.attr = n.attr;
