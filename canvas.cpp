@@ -103,7 +103,13 @@ void Canvas::keyPressEvent(QKeyEvent *event)
 void Canvas::drawNode(QPainter *painter, QTransform transform, Snake::Node *node)
 {
     // painter->drawRect(QRect(this->pixelCoords(node->pos), this->nodeSize()));
-    QPixmap *p = this->m_pixmaps->value(this->pixmapIdFromNode(*node));
+    QPixmap *p;
+    {
+        // get a random pixmap
+        QList<QPixmap *> pixmaps = this->m_pixmaps->values(this->pixmapIdFromNode(*node));
+        p = pixmaps.at(qrand() % pixmaps.size());
+    }
+
     if (!p) {
         return; // NO SEGFAULTS ALLOWED
     }
