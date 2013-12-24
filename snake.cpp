@@ -15,6 +15,7 @@ void Snake::init()
     this->god->stop();
     this->god->setInterval(200);
     this->m_size = QSize(40, 40);
+    this->lastOrientation = Nowhere;
 
     this->clearNodes();
 
@@ -274,6 +275,7 @@ void Snake::tick()
         this->addNode(mkNode(newCoords, SnakeBody
             , this->m_nodes[SnakeBody].last()->orientation
             , AttrSnakeHead, BendNone));
+        this->lastOrientation = this->m_nodes[SnakeBody].last()->orientation;
 
         emit refreshNodes();
         if (snakeGrowFlag) {    // fixme, I hate flags
@@ -286,8 +288,32 @@ void Snake::tick()
     }
 }
 
+Snake::Bend Snake::bendFromOrientation(Orientation a, Orientation b)
+{
+    if (a == Nowhere || b == Nowhere) {
+        return BendNone;
+    }
+    if (b > a) {    // Orientation is ordered clockwisely (is that a word?)
+        if (b == Left && a == Up) {
+            return BendCounterclockwise;
+        }
+        return BendClockwise;
+    }
+    if (b < a) {
+        if (b == Up && a == Left) {
+            return BendClockwise;
+        }
+        return BendCounterclockwise;
+    }
+    return BendNone;
+}
+
 void Snake::orient(Orientation o)
 {
+    if (this->lastOrientation == Nowhere)
+        this->lastOrientation = this->m_nodes[SnakeBody].last()->orientation;
+    this->m_nodes[SnakeBody].last()->bend = this->bendFromOrientation(
+                lastOrientation, o);
     this->m_nodes[SnakeBody].last()->orientation = o;
     emit refreshNodes();
 }

@@ -27,8 +27,6 @@ void Canvas::paintEvent(QPaintEvent * /* event */)
     for (Snake::NodeMap::ConstIterator i = nm.constBegin();
          i != nm.constEnd(); ++i) {
         for (int j = 0; j != (*i).size(); ++j) {
-            if ((*i).value(j)->bend != Snake::BendNone)
-                qDebug() << "bend";
             this->drawNode(&painter, transform, (*i).value(j));
         }
     }

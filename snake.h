@@ -21,12 +21,13 @@ class Snake : public QObject
 public:
     /*!
      * \brief orientation direction
+     * ordered clockwise
      */
     enum Orientation {
-        Left,
-        Right,
         Up,
+        Right,
         Down,
+        Left,
         Nowhere
     };
 
@@ -171,6 +172,14 @@ public:
     static Bend bendFromString(QString s);
 
     /*!
+     * \brief get a Bend from a change in orientation
+     * \param a
+     * \param b
+     * \return the bend that results from changing orientation from a to b
+     */
+    static Bend bendFromOrientation(Orientation a, Orientation b);
+
+    /*!
      * \brief add a node to the lookup tables
      * \param n the node pointer
      * \return success value: false if node is already in the tables
@@ -308,6 +317,11 @@ private:
      * \sa NodeGrid
      */
     NodeGrid gridLookup;
+
+    /*!
+     * \brief the last orientation, used for determining bend
+     */
+    Orientation lastOrientation;
 
     /*!
      * \brief get a new apple
