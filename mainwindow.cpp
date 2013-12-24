@@ -22,7 +22,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 void MainWindow::initClicked()
 {
-    this->readSettings("/tmp/test.json");
+    this->readSettings("test.json");
 }
 
 void MainWindow::stateChanged()

@@ -17,11 +17,11 @@ void Canvas::paintEvent(QPaintEvent * /* event */)
     qDebug() << "entered paint event";
     QPainter painter(this);
     Snake::NodeMap nm = this->snake->nodes();
-    for (int i = 0; i < nm[Snake::SnakeBody].size(); ++i) {
-        this->drawNode(&painter, nm[Snake::SnakeBody].value(i));
-    }
-    for (int i = 0; i < nm[Snake::Apple].size(); ++i) {
-        this->drawNode(&painter, nm[Snake::Apple].value(i));
+    for (Snake::NodeMap::ConstIterator i = nm.constBegin();
+         i != nm.constEnd(); ++i) {
+        for (int j = 0; j != (*i).size(); ++j) {
+            this->drawNode(&painter, (*i).value(j));
+        }
     }
 }
 
