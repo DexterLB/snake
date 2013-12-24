@@ -41,11 +41,11 @@ QTransform Canvas::keepAspect()
 
 void Canvas::paintEvent(QPaintEvent * /* event */)
 {
-    qDebug() << "entered paint event";
     QPainter painter(this);
+
+    // those don't work for pixmaps? maybe a render backend specific bug? fixme
     painter.setRenderHint(QPainter::Antialiasing);
     painter.setRenderHint(QPainter::SmoothPixmapTransform);
-    qDebug() << "render hints: " << painter.renderHints();
 
     QTransform transform;   // coordinate system transform matrix
                             // woo fancy words
@@ -111,24 +111,28 @@ void Canvas::drawNode(QPainter *painter, QTransform transform, Snake::Node *node
 
     // set the position to the centre of the node we're drawing
     transform.translate((qreal)(node->pos.x()) + 0.5, (qreal)(node->pos.y()) + 0.5);
+    // do the rotation (around the centre)
     transform.rotate(Snake::orientationAngle(node->orientation));
+    // now move back to the up-left corner
+    transform.translate(-0.5, -0.5);
 
 
     painter->setTransform(transform);
 
+    // we've targeted a 1x1 square for the node with transform, so that's our target
+    static const QRectF target(0, 0, 1, 1);
+
     // because of a bug in Qt antialiased rendering on
     // a transformed coordinate system doesn't work.
     // fixme
-
     /*
-    static const QRectF source(QPointF(0, 0), p->size());    // the entire pixmap
-    static const QRectF target(QPointF(-0.5, -0.5), QSizeF(1, 1));
+    static const QRectF source(QPointF(0, 0), QSizeF(p->size()));
     painter->drawPixmap(target, *p, source);
     */
 
-    // workaround is to first do the scaling
+    // a workaround is to first do approximate scaling with QPixmap::scaled()
+    // and then use the translated coordinates. this needs some thinking through, but works so far
     static const QRectF source(QPointF(0, 0), QSizeF((int)this->nodeSize().width(), (int)this->nodeSize().height()));    // the entire pixmap
-    static const QRectF target(QPointF(-0.5, -0.5), QSizeF(1, 1));
     painter->drawPixmap(target, p->scaled((int)this->nodeSize().width(), (int)this->nodeSize().height(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation), source);
 }
 
