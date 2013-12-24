@@ -96,11 +96,13 @@ void Canvas::keyPressEvent(QKeyEvent *event)
 void Canvas::drawNode(QPainter *painter, QTransform transform, Snake::Node *node)
 {
     // painter->drawRect(QRect(this->pixelCoords(node->pos), this->nodeSize()));
-    QPixmap *p;
+    QPixmap *p = NULL;
     {
         // get a random pixmap
         QList<QPixmap *> pixmaps = this->m_pixmaps->values(this->pixmapIdFromNode(*node));
-        p = pixmaps.at(qrand() % pixmaps.size());
+        // each time we draw the same node the pixmap will be the same, since rand is stored
+        // inside the node struct
+        p = pixmaps.at(node->rand % pixmaps.size());
     }
 
     if (!p) {

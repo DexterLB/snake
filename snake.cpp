@@ -201,6 +201,7 @@ Snake::Node* Snake::mkNode(QPoint pos, NodeType type, Orientation orientation, N
     n->type = type;
     n->bend = bend;
     n->attr = attr;
+    n->rand = qrand();
     return n;
 }
 

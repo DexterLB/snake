@@ -84,6 +84,7 @@ public:
         Bend bend;
         NodeAttribute attr;
         NodeType type;
+        int rand;                   //! some random data specific to this node
     } Node;
 
     /*!
