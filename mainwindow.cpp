@@ -18,6 +18,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(this->snake, SIGNAL(stateChanged()), this, SLOT(stateChanged()));
     connect(this->snake, SIGNAL(snakeLengthChanged()), this, SLOT(lengthChanged()));
     connect(this->ui->playBtn, SIGNAL(clicked()), this, SLOT(selectLevel()));
+    connect(this->ui->levelList, SIGNAL(itemActivated(QListWidgetItem*)), this, SLOT(selectLevel()));
 
     this->stateChanged();
 
@@ -154,6 +155,9 @@ bool MainWindow::readLevelList(QString filename)
         item = new QListWidgetItem(name, this->ui->levelList);
         item->setData(Qt::UserRole, QVariant(file));
     }
+
+    this->ui->levelList->setCurrentRow(0);
+
     return true;
 }
 
