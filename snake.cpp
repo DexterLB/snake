@@ -5,19 +5,24 @@ Snake::Snake(QObject *parent) :
 {
 
     this->god = new QTimer();
-    this->m_state = Undefined;
-
     connect(this->god, SIGNAL(timeout()), this, SLOT(tick()));
+    this->reset();
 }
 
-void Snake::init()
+void Snake::reset()
 {
-    this->god->stop();
+
     this->god->setInterval(200);
     this->m_size = QSize(40, 40);
     this->lastOrientation = Nowhere;
 
     this->clearNodes();
+    this->setState(Undefined);
+}
+
+void Snake::init()
+{
+    this->god->stop();
 
     qDebug() << "game init";
     this->setState(Stopped);

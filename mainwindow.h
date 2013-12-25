@@ -89,6 +89,11 @@ private slots:
      */
     void clearPixmaps();
 
+    /*!
+     * \brief select a level from the list and load it
+     */
+    void selectLevel();
+
 protected:
     /*!
      * \brief widget keypress event

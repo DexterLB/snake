@@ -17,6 +17,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(this->snake, SIGNAL(refreshNodes()), this->ui->canvas, SLOT(update()));
     connect(this->snake, SIGNAL(stateChanged()), this, SLOT(stateChanged()));
     connect(this->snake, SIGNAL(snakeLengthChanged()), this, SLOT(lengthChanged()));
+    connect(this->ui->playBtn, SIGNAL(clicked()), this, SLOT(selectLevel()));
     this->stateChanged();
     this->readLevelList("levels.json");
 }
@@ -30,24 +31,30 @@ void MainWindow::stateChanged()
     } else {
         this->ui->menuBox->hide();
         this->ui->canvas->show();
+        this->ui->canvas->setFocus();
 
         switch(this->snake->state()) {
         case Snake::Stopped:
             this->ui->infoLabel->setText(tr("Press Space (that big long button) to start!"));
             break;
         case Snake::Playing:
-            this->ui->infoLabel->setText(tr("Press Space to pause or R for rage quit. Also, you suck."));
+            this->ui->infoLabel->setText(tr("Press Space to pause, N for rage reset or R for rage quit. Also, you suck."));
             break;
         case Snake::Paused:
             this->ui->infoLabel->setText(tr("Press Space to resume"));
             break;
         case Snake::Over:
-            this->ui->infoLabel->setText(tr("Aww, you piece of crap. Press R for new game"));
+            this->ui->infoLabel->setText(tr("Aww, you piece of crap. Press N for new game or R for another level"));
             break;
         default:
             break;  // do nothing
         }
     }
+}
+
+void MainWindow::selectLevel()
+{
+    this->readLevel(this->ui->levelList->selectedItems().at(0)->data(Qt::UserRole).toString());
 }
 
 void MainWindow::lengthChanged()
@@ -268,8 +275,11 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
     case Qt::Key_Down:
         this->snake->orient(Snake::Down);
         break;
+    case Qt::Key_N:
+        this->selectLevel();
+        break;
     case Qt::Key_R:
-        this->readLevel("test.json");
+        this->snake->reset();
         break;
     case Qt::Key_Space:
         switch(this->snake->state()) {

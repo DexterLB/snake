@@ -272,6 +272,11 @@ public slots:
     void init();
 
     /*!
+     * \brief reset the game to an initial state and set some sensible defaults
+     */
+    void reset();
+
+    /*!
      * \brief set the orientation (direction) of the snake
      * \param o the orientation
      * sets the orientation of the snake's "head" node, which determines the
