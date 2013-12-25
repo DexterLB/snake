@@ -74,6 +74,18 @@ public:
     void setPixmaps(PixmapMap *p);
 
     /*!
+     * \brief set the background colour for the field
+     * \param color
+     */
+    void setBgColor(QColor color);
+
+    /*!
+     * \brief set the background image
+     * \param pixmap
+     */
+    void setBgPixmap(QPixmap &pixmap);
+
+    /*!
      * \brief pixmapIdFromNode
      * \param n a node
      * \return PixmapId
@@ -101,6 +113,16 @@ private:
     qreal m_nodeAspect;
 
     /*!
+     * \brief background colour
+     */
+    QColor m_bgColor;
+
+    /*!
+     * \brief background image
+     */
+    QPixmap m_bgPixmap;
+
+    /*!
      * \brief draw a single node on the canvas
      * \param painter a QPainter that paints on the widget
      * \param transform the base transform matrix
@@ -122,10 +144,16 @@ private:
      */
     qreal aspect();
 
-
+    /*!
+     * \brief draws a pixmap scaled on the entire field
+     * \param painter
+     * \param pixmap
+     */
+    void drawPixmapOnField(QPainter *painter, QPixmap &pixmap);
 
     /*!
      * \brief sets the background (only of the field area)
+     * \param painter
      */
     void drawBackground(QPainter *painter);
 
