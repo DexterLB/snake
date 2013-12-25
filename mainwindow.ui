@@ -101,20 +101,6 @@
         </property>
         <layout class="QHBoxLayout" name="horizontalLayout_4">
          <item>
-          <widget class="QLabel" name="visualScoreLabel">
-           <property name="text">
-            <string>Score:</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLabel" name="scoreLabel">
-           <property name="text">
-            <string>0</string>
-           </property>
-          </widget>
-         </item>
-         <item>
           <widget class="QLabel" name="visualLengthLabel">
            <property name="text">
             <string>Length:</string>

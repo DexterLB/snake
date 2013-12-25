@@ -6,7 +6,10 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>
+#include <QMessageBox>
 #include <QTime>
+#include <QDir>
+#include <QFileInfo>
 #include "snake.h"
 #include "canvas.h"
 
@@ -93,6 +96,11 @@ private slots:
      * \brief select a level from the list and load it
      */
     void selectLevel();
+
+    /*!
+     * \brief this is executed as soon as we enter the event loop
+     */
+    void loadInitialConfig();
 
 protected:
     /*!

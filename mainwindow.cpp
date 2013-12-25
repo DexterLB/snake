@@ -18,8 +18,24 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(this->snake, SIGNAL(stateChanged()), this, SLOT(stateChanged()));
     connect(this->snake, SIGNAL(snakeLengthChanged()), this, SLOT(lengthChanged()));
     connect(this->ui->playBtn, SIGNAL(clicked()), this, SLOT(selectLevel()));
+
     this->stateChanged();
-    this->readLevelList("levels.json");
+
+    // wait for the event loop to start and then call loadInitialConfig()
+    QMetaObject::invokeMethod(this, "loadInitialConfig", Qt::QueuedConnection);
+}
+
+void MainWindow::loadInitialConfig()
+{
+    QDir::addSearchPath("main", QDir::currentPath());
+    QDir::addSearchPath("main", QDir::home().filePath("snake"));
+    QDir::addSearchPath("main", QDir::home().filePath(".snake"));
+    if (!this->readLevelList("main:levels.json")) {
+        QMessageBox::critical(this, "Cannot read level list", QString()
+                              + "failed reading levels.json from these locations:\n"
+                              + QDir::searchPaths("main").join('\n'));
+        qApp->exit(1);
+    }
 }
 
 void MainWindow::stateChanged()
@@ -54,7 +70,18 @@ void MainWindow::stateChanged()
 
 void MainWindow::selectLevel()
 {
-    this->readLevel(this->ui->levelList->selectedItems().at(0)->data(Qt::UserRole).toString());
+    QList<QListWidgetItem *> items = this->ui->levelList->selectedItems();
+    if (items.isEmpty()) {
+        this->ui->infoLabel->setText(tr("First select a level, dumbhead!"));
+        return;
+    }
+
+    QString file = items.first()->data(Qt::UserRole).toString();
+    if (!this->readLevel(file)) {
+        QMessageBox::critical(this, "Cannot read level list", "failed reading file: "
+                              + file);
+        qApp->exit(1);
+    }
 }
 
 void MainWindow::lengthChanged()
@@ -106,14 +133,20 @@ QJsonObject MainWindow::readJson(QString filename)
 
 bool MainWindow::readLevelList(QString filename)
 {
+    // all files will be relative to this directory
+    QDir dir = QFileInfo(filename).dir();
+
     QJsonObject root = this->readJson(filename);
     QJsonArray levels = root.value(QString("levels")).toArray();
+    if (levels.isEmpty()) {
+        return false;
+    }
     QString name, file;
     QListWidgetItem *item;
     for (QJsonArray::ConstIterator i = levels.constBegin();
          i != levels.constEnd(); ++i) {
         name = (*i).toObject().value("name").toString();
-        file = (*i).toObject().value("file").toString();
+        file = dir.filePath((*i).toObject().value("file").toString());
         if (name.isEmpty() || file.isEmpty()) {
             qDebug() << "empty value";
             return false;
@@ -130,6 +163,9 @@ bool MainWindow::readLevel(QString filename)
      * in this function there be returns everywhere!
      * todo: make it prettier
      */
+
+    // all files will be relative to this directory
+    QDir dir = QFileInfo(filename).dir();
 
     this->snake->init();
 
@@ -169,7 +205,8 @@ bool MainWindow::readLevel(QString filename)
 
     // get all nodes
     val = root.value(QString("nodes"));
-    if (!val.isArray()) {
+    if (!val.isArray()) {// all files will be relative to this directory
+        QDir dir = QFileInfo(filename).dir();
         qDebug() << "nodes is not an array";
         return false;
     }
@@ -221,7 +258,7 @@ bool MainWindow::readLevel(QString filename)
     for (QJsonArray::ConstIterator i = val.toArray().constBegin();
          i != val.toArray().constEnd(); ++i) {
         obj = (*i).toObject();
-        p = new QPixmap(obj.value(QString("file")).toString());
+        p = new QPixmap(dir.filePath(obj.value(QString("file")).toString()));
         if (p->isNull()) {
             qDebug() << "invalid pixmap";
             delete p;
@@ -276,6 +313,7 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
         this->snake->orient(Snake::Down);
         break;
     case Qt::Key_N:
+        this->snake->reset();
         this->selectLevel();
         break;
     case Qt::Key_R:
