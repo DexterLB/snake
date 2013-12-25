@@ -17,24 +17,29 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(this->snake, SIGNAL(refreshNodes()), this->ui->canvas, SLOT(update()));
     connect(this->snake, SIGNAL(stateChanged()), this, SLOT(stateChanged()));
     connect(this->snake, SIGNAL(snakeLengthChanged()), this, SLOT(lengthChanged()));
-
-    connect(ui->initBtn, SIGNAL(clicked()), this, SLOT(initClicked()));
-    connect(ui->startBtn, SIGNAL(clicked()), this->snake, SLOT(start()));
-    connect(ui->pauseBtn, SIGNAL(clicked()), this->snake, SLOT(pause()));
-
-}
-
-void MainWindow::initClicked()
-{
-    this->readSettings("test.json");
+    this->stateChanged();
 }
 
 void MainWindow::stateChanged()
 {
-    if (this->snake->state() == Snake::Over) {
-        this->ui->gameOver->show();
-    } else {
-        this->ui->gameOver->hide();
+    switch(this->snake->state()) {
+    case Snake::Undefined:
+        this->ui->infoLabel->setText(tr("Select a level"));
+        break;
+    case Snake::Stopped:
+        this->ui->infoLabel->setText(tr("Press Space (that big long button) to start!"));
+        break;
+    case Snake::Playing:
+        this->ui->infoLabel->setText(tr("Press Space to pause or R for rage quit. Also, you suck."));
+        break;
+    case Snake::Paused:
+        this->ui->infoLabel->setText(tr("Press Space to resume"));
+        break;
+    case Snake::Over:
+        this->ui->infoLabel->setText(tr("Aww, you piece of crap. Press R for new game"));
+        break;
+    default:
+        break;  // do nothing
     }
 }
 
@@ -45,6 +50,7 @@ void MainWindow::lengthChanged()
 
 MainWindow::~MainWindow()
 {
+    this->clearPixmaps();
     delete ui;
 }
 
@@ -246,6 +252,8 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
         case Snake::Stopped:
             this->snake->start();
             break;
+        default:
+            break;  // do nothing
         }
         break;
     default:

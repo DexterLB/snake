@@ -75,8 +75,6 @@ private slots:
      */
     void clearPixmaps();
 
-    void initClicked();
-
 protected:
     /*!
      * \brief widget keypress event
