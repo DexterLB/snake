@@ -76,6 +76,15 @@ private slots:
     void clearPixmaps();
 
     void initClicked();
+
+protected:
+    /*!
+     * \brief widget keypress event
+     * \param event the key event object
+     * called when a key event is received by the widget
+     * (in most cases this requires the widget to be focused)
+     */
+    void keyPressEvent(QKeyEvent *event);
 };
 
 #endif // MAINWINDOW_H

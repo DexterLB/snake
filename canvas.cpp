@@ -39,6 +39,7 @@ QTransform Canvas::keepAspect()
 
     // scale to new size
     transform.scale(scale, scale);
+
     // center
     transform.translate((this->width() - newHeight) / 2,
                         (this->height() - newWidth) / 2);
@@ -92,26 +93,6 @@ void Canvas::drawBackground(QPainter *painter)
     }
 }
 
-void Canvas::keyPressEvent(QKeyEvent *event)
-{
-    switch(event->key()) {
-    case Qt::Key_Left:
-        this->snake->orient(Snake::Left);
-        break;
-    case Qt::Key_Right:
-        this->snake->orient(Snake::Right);
-        break;
-    case Qt::Key_Up:
-        this->snake->orient(Snake::Up);
-        break;
-    case Qt::Key_Down:
-        this->snake->orient(Snake::Down);
-        break;
-    default:
-        QWidget::keyPressEvent(event);
-    }
-}
-
 void Canvas::drawNode(QPainter *painter, QTransform transform, Snake::Node *node)
 {
     // painter->drawRect(QRect(this->pixelCoords(node->pos), this->nodeSize()));
@@ -119,14 +100,14 @@ void Canvas::drawNode(QPainter *painter, QTransform transform, Snake::Node *node
     {
         // get a random pixmap
         QList<QPixmap *> pixmaps = this->m_pixmaps->values(this->pixmapIdFromNode(*node));
+        if (pixmaps.isEmpty()) {
+            return; // no pixmap
+        }
         // each time we draw the same node the pixmap will be the same, since rand is stored
         // inside the node struct
         p = pixmaps.at(node->rand % pixmaps.size());
     }
 
-    if (!p) {
-        return; // NO SEGFAULTS ALLOWED
-    }
 
     // set the position to the centre of the node we're drawing
     transform.translate((qreal)(node->pos.x()) + 0.5, (qreal)(node->pos.y()) + 0.5);

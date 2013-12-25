@@ -192,14 +192,6 @@ protected:
      */
     void paintEvent(QPaintEvent *event);
 
-    /*!
-     * \brief widget keypress event
-     * \param event the key event object
-     * called when a key event is received by the widget
-     * (in most cases this requires the widget to be focused)
-     */
-    void keyPressEvent(QKeyEvent *event);
-
 private slots:
     /*!
      * \brief upon field size change

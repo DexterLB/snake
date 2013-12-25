@@ -214,5 +214,41 @@ bool MainWindow::readSettings(QString filename)
             }
         }
     }
+    this->lengthChanged();
     return true;
+}
+
+
+void MainWindow::keyPressEvent(QKeyEvent *event)
+{
+    switch(event->key()) {
+    case Qt::Key_Left:
+        this->snake->orient(Snake::Left);
+        break;
+    case Qt::Key_Right:
+        this->snake->orient(Snake::Right);
+        break;
+    case Qt::Key_Up:
+        this->snake->orient(Snake::Up);
+        break;
+    case Qt::Key_Down:
+        this->snake->orient(Snake::Down);
+        break;
+    case Qt::Key_R:
+        this->readSettings("test.json");
+        break;
+    case Qt::Key_Space:
+        switch(this->snake->state()) {
+        case Snake::Playing:
+            this->snake->pause();
+            break;
+        case Snake::Paused:
+        case Snake::Stopped:
+            this->snake->start();
+            break;
+        }
+        break;
+    default:
+        QWidget::keyPressEvent(event);
+    }
 }
