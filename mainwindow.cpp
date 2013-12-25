@@ -18,28 +18,35 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(this->snake, SIGNAL(stateChanged()), this, SLOT(stateChanged()));
     connect(this->snake, SIGNAL(snakeLengthChanged()), this, SLOT(lengthChanged()));
     this->stateChanged();
+    this->readLevelList("levels.json");
 }
 
 void MainWindow::stateChanged()
 {
-    switch(this->snake->state()) {
-    case Snake::Undefined:
+    if (this->snake->state() == Snake::Undefined) {
+        this->ui->menuBox->show();
+        this->ui->canvas->hide();
         this->ui->infoLabel->setText(tr("Select a level"));
-        break;
-    case Snake::Stopped:
-        this->ui->infoLabel->setText(tr("Press Space (that big long button) to start!"));
-        break;
-    case Snake::Playing:
-        this->ui->infoLabel->setText(tr("Press Space to pause or R for rage quit. Also, you suck."));
-        break;
-    case Snake::Paused:
-        this->ui->infoLabel->setText(tr("Press Space to resume"));
-        break;
-    case Snake::Over:
-        this->ui->infoLabel->setText(tr("Aww, you piece of crap. Press R for new game"));
-        break;
-    default:
-        break;  // do nothing
+    } else {
+        this->ui->menuBox->hide();
+        this->ui->canvas->show();
+
+        switch(this->snake->state()) {
+        case Snake::Stopped:
+            this->ui->infoLabel->setText(tr("Press Space (that big long button) to start!"));
+            break;
+        case Snake::Playing:
+            this->ui->infoLabel->setText(tr("Press Space to pause or R for rage quit. Also, you suck."));
+            break;
+        case Snake::Paused:
+            this->ui->infoLabel->setText(tr("Press Space to resume"));
+            break;
+        case Snake::Over:
+            this->ui->infoLabel->setText(tr("Aww, you piece of crap. Press R for new game"));
+            break;
+        default:
+            break;  // do nothing
+        }
     }
 }
 
@@ -71,7 +78,46 @@ void MainWindow::clearPixmaps()
     }
 }
 
-bool MainWindow::readSettings(QString filename)
+QJsonObject MainWindow::readJson(QString filename)
+{
+    QFile file(filename);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        qDebug() << "failed to open file " << filename;
+        return QJsonObject();
+    }
+    QJsonParseError err;
+    QByteArray data = file.readAll();
+    file.close();
+    QJsonDocument doc = QJsonDocument::fromJson(data, &err);
+    if (err.error != QJsonParseError::NoError) {
+        qDebug() << "json parse error: " << err.errorString() << " at " << err.offset;
+        qDebug() << data.insert(err.offset - 1, "<!>");
+        return QJsonObject();
+    }
+    return doc.object();
+}
+
+bool MainWindow::readLevelList(QString filename)
+{
+    QJsonObject root = this->readJson(filename);
+    QJsonArray levels = root.value(QString("levels")).toArray();
+    QString name, file;
+    QListWidgetItem *item;
+    for (QJsonArray::ConstIterator i = levels.constBegin();
+         i != levels.constEnd(); ++i) {
+        name = (*i).toObject().value("name").toString();
+        file = (*i).toObject().value("file").toString();
+        if (name.isEmpty() || file.isEmpty()) {
+            qDebug() << "empty value";
+            return false;
+        }
+        item = new QListWidgetItem(name, this->ui->levelList);
+        item->setData(Qt::UserRole, QVariant(file));
+    }
+    return true;
+}
+
+bool MainWindow::readLevel(QString filename)
 {
     /*
      * in this function there be returns everywhere!
@@ -80,26 +126,8 @@ bool MainWindow::readSettings(QString filename)
 
     this->snake->init();
 
-    QFile file(filename);
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        qDebug() << "failed to open file " << filename;
-        return false;
-    }
-    QJsonObject root;
-    {
-        QJsonParseError err;
-        QByteArray data = file.readAll();
-        file.close();
-        QJsonDocument doc = QJsonDocument::fromJson(data, &err);
-        if (err.error != QJsonParseError::NoError) {
-            qDebug() << "json parse error: " << err.errorString() << " at " << err.offset;
-            qDebug() << data.insert(err.offset - 1, "<!>");
-            return false;
-        }
-        root = doc.object();
-    }
+    QJsonObject root = this->readJson(filename);
     QJsonValue val;
-
     QSize size;
 
     // get background colour
@@ -241,7 +269,7 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
         this->snake->orient(Snake::Down);
         break;
     case Qt::Key_R:
-        this->readSettings("test.json");
+        this->readLevel("test.json");
         break;
     case Qt::Key_Space:
         switch(this->snake->state()) {

@@ -48,11 +48,25 @@ private:
     Snake *snake;
 
     /*!
+     * \brief reads a json file
+     * \param filename
+     * \return the root object
+     */
+    QJsonObject readJson(QString filename);
+
+    /*!
      * \brief reads map settings from a json file
      * \param filename
      * \return success value
      */
-    bool readSettings(QString filename);
+    bool readLevel(QString filename);
+
+    /*!
+     * \brief reads a level list from a json file
+     * \param filename
+     * \return success value
+     */
+    bool readLevelList(QString filename);
 
     /*!
      * \brief all pixmaps for rendering nodes
