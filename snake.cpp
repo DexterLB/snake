@@ -11,7 +11,7 @@ Snake::Snake(QObject *parent) :
 
 void Snake::reset()
 {
-
+    this->god->stop();
     this->god->setInterval(200);
     this->m_size = QSize(40, 40);
     this->lastOrientation = Nowhere;
@@ -275,12 +275,16 @@ void Snake::tick()
         }
 
         // the old head now becomes part of the torso
-        this->m_nodes[SnakeBody].last()->attr = AttrSnakeTorso;
+        if (this->m_nodes[SnakeBody].last()->attr == AttrSnakeHeadFat) {
+            this->m_nodes[SnakeBody].last()->attr = AttrSnakeTorsoFat;
+        } else {
+            this->m_nodes[SnakeBody].last()->attr = AttrSnakeTorso;
+        }
 
         // add a node at the "head"
         this->addNode(mkNode(newCoords, SnakeBody
             , this->m_nodes[SnakeBody].last()->orientation
-            , AttrSnakeHead, BendNone));
+            , (snakeGrowFlag ? AttrSnakeHeadFat : AttrSnakeHead), BendNone));
         this->lastOrientation = this->m_nodes[SnakeBody].last()->orientation;
 
         emit refreshNodes();

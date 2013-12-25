@@ -60,6 +60,8 @@ public:
         AttrSnakeHead = 1,
         AttrSnakeTail = 2,
         AttrApple = 3,
+        AttrSnakeHeadFat = 4,   //! the snake stuffing its face
+        AttrSnakeTorsoFat = 5   //! the part of the snake that's eaten an apple
     };
 
     /*!
