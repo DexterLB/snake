@@ -83,7 +83,14 @@ public:
      * \brief set the background image
      * \param pixmap
      */
-    void setBgPixmap(QPixmap &pixmap);
+    void setBgPixmap(QPixmap pixmap);
+
+    /*!
+     * \brief set the image that will be shown on the eniter field
+     * when the game state is "Over"
+     * \param pixmap
+     */
+    void setGameOverPixmap(QPixmap pixmap);
 
     /*!
      * \brief pixmapIdFromNode
@@ -123,6 +130,11 @@ private:
     QPixmap m_bgPixmap;
 
     /*!
+     * \brief image shown on game over
+     */
+    QPixmap m_gameOverPixmap;
+
+    /*!
      * \brief draw a single node on the canvas
      * \param painter a QPainter that paints on the widget
      * \param transform the base transform matrix
@@ -131,6 +143,18 @@ private:
      * nodes must be redrawn on widget updates
      */
     void drawNode(QPainter *painter, QTransform transform, Snake::Node *node);
+
+    /*!
+     * \brief the width of the field after forcing aspect ratio
+     * \return width
+     */
+    int keepAspectWidth();
+
+    /*!
+     * \brief the height of the field after forcing aspect ratio
+     * \return height
+     */
+    int keepAspectHeight();
 
     /*!
      * \brief transform the drawing area in order to keep the aspect ratio

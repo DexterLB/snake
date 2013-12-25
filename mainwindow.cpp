@@ -96,6 +96,15 @@ bool MainWindow::readSettings(QString filename)
 
     QSize size;
 
+    // get background colour
+    this->ui->canvas->setBgColor(QColor(root.value(QString("bg-clr")).toString()));
+
+    // get background image
+    this->ui->canvas->setBgPixmap(QPixmap(root.value(QString("bg-img")).toString()));
+
+    // get the game over image
+    this->ui->canvas->setGameOverPixmap(QPixmap(root.value(QString("gameover-img")).toString()));
+
     // get size
     val = root.value(QString("size"));
     if (val.toArray().size() != 2) {

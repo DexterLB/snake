@@ -286,6 +286,7 @@ void Snake::tick()
         // game over
         this->god->stop();
         this->setState(Over);
+        emit refreshNodes();
     }
 }
 

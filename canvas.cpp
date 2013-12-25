@@ -4,8 +4,6 @@ Canvas::Canvas(QWidget *parent) :
     QWidget(parent)
 {
     this->m_nodeAspect = 1;
-    this->m_bgColor = QColor(0xebd9bf);
-    this->m_bgPixmap = QPixmap("bg.png");
 }
 
 void Canvas::setNodeAspect(qreal a)
@@ -19,23 +17,32 @@ qreal Canvas::aspect()
                                  / this->snake->size().height());
 }
 
+int Canvas::keepAspectWidth()
+{
+    return qMin(this->width(), (int)(this->height() * this->aspect()));
+}
+
+int Canvas::keepAspectHeight()
+{
+    return this->keepAspectWidth() / this->aspect();
+}
+
 QTransform Canvas::keepAspect()
 {
     QTransform transform;
 
-    int newWidth = qMin(this->width()
-                        , (int)(this->height() * this->aspect()));
-    int newHeight = qMin(this->height()
-                         , (int)(this->width() / this->aspect()));
+    int newWidth = this->keepAspectWidth();
+    int newHeight = this->keepAspectHeight();
 
-
-    // center
-    transform.translate((this->width() - newWidth) / 2,
-                        (this->height() - newHeight) / 2);
+    qreal scale = qMax((qreal)newWidth / this->width()
+                       , (qreal)newHeight / this->height());
 
     // scale to new size
-    transform.scale((qreal)newWidth / this->width()
-                              , (qreal)newHeight / this->height());
+    transform.scale(scale, scale);
+    // center
+    transform.translate((this->width() - newHeight) / 2,
+                        (this->height() - newWidth) / 2);
+
 
 
     return transform;
@@ -67,6 +74,12 @@ void Canvas::paintEvent(QPaintEvent * /* event */)
         for (int j = 0; j != (*i).size(); ++j) {
             this->drawNode(&painter, transform, (*i).value(j));
         }
+    }
+
+    // check for game over
+    if (this->snake->state() == Snake::Over && !this->m_gameOverPixmap.isNull()) {
+        painter.setTransform(transform);
+        this->drawPixmapOnField(&painter, this->m_gameOverPixmap);
     }
 }
 
@@ -119,7 +132,7 @@ void Canvas::drawNode(QPainter *painter, QTransform transform, Snake::Node *node
     transform.translate((qreal)(node->pos.x()) + 0.5, (qreal)(node->pos.y()) + 0.5);
     // do the rotation (around the centre)
     transform.rotate(Snake::orientationAngle(node->orientation));
-    // now move back to the up-left corner
+    // now move back to the topleft corner
     transform.translate(-0.5, -0.5);
 
 
@@ -146,8 +159,9 @@ void Canvas::drawNode(QPainter *painter, QTransform transform, Snake::Node *node
 void Canvas::drawPixmapOnField(QPainter *painter, QPixmap &pixmap)
 {
     // again doing the antialising workaround
-    QPixmap p = pixmap.scaled(this->nodeSize().width() * this->snake->size().width()
-                                       , this->nodeSize().height() * this->snake->size().width()
+    QSizeF nodesize = this->nodeSize();
+    QPixmap p = pixmap.scaled(nodesize.width() * this->snake->size().width()
+                                       , this->nodeSize().height() * this->snake->size().height()
                                        , Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
     QRect target(QPoint(0, 0), this->snake->size());
     QRect source(QPoint(0, 0), p.size());    // the entire pixmap
@@ -156,8 +170,8 @@ void Canvas::drawPixmapOnField(QPainter *painter, QPixmap &pixmap)
 
 QSizeF Canvas::nodeSize()
 {
-    return QSizeF((qreal)(this->size().width()) / this->snake->size().width()
-                , (qreal)(this->size().height()) / this->snake->size().height());
+    return QSizeF((qreal)(this->keepAspectWidth()) / this->snake->size().width()
+                , (qreal)(this->keepAspectWidth()) / this->snake->size().height());
 }
 
 QPoint Canvas::pixelCoords(QPoint coords)
@@ -189,4 +203,19 @@ Canvas::PixmapId Canvas::pixmapIdFromNode(Snake::Node &n)
     p.attr = n.attr;
     p.bend = n.bend;
     return p;
+}
+
+void Canvas::setBgPixmap(QPixmap pixmap)
+{
+    this->m_bgPixmap = pixmap;
+}
+
+void Canvas::setGameOverPixmap(QPixmap pixmap)
+{
+    this->m_gameOverPixmap = pixmap;
+}
+
+void Canvas::setBgColor(QColor color)
+{
+    this->m_bgColor = color;
 }
