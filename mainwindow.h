@@ -46,7 +46,7 @@ private:
     Ui::MainWindow *ui;
 
     /*!
-     * \brief actual stuff
+     * \brief the snake class (all the game logic)
      */
     Snake *snake;
 

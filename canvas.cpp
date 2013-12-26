@@ -1,54 +1,5 @@
 #include "canvas.h"
 
-Canvas::Canvas(QWidget *parent) :
-    QWidget(parent)
-{
-    this->m_nodeAspect = 1;
-}
-
-void Canvas::setNodeAspect(qreal a)
-{
-    this->m_nodeAspect = a;
-}
-
-qreal Canvas::aspect()
-{
-    return this->m_nodeAspect * ((qreal)this->snake->size().width()
-                                 / this->snake->size().height());
-}
-
-int Canvas::keepAspectWidth()
-{
-    return qMin(this->width(), (int)(this->height() * this->aspect()));
-}
-
-int Canvas::keepAspectHeight()
-{
-    return this->keepAspectWidth() / this->aspect();
-}
-
-QTransform Canvas::keepAspect()
-{
-    QTransform transform;
-
-    int newWidth = this->keepAspectWidth();
-    int newHeight = this->keepAspectHeight();
-
-    qreal scale = qMax((qreal)newWidth / this->width()
-                       , (qreal)newHeight / this->height());
-
-    // scale to new size
-    transform.scale(scale, scale);
-
-    // center
-    transform.translate((this->width() - newHeight) / 2,
-                        (this->height() - newWidth) / 2);
-
-
-
-    return transform;
-}
-
 void Canvas::paintEvent(QPaintEvent * /* event */)
 {
     QPainter painter(this);
@@ -84,14 +35,6 @@ void Canvas::paintEvent(QPaintEvent * /* event */)
     }
 }
 
-void Canvas::drawBackground(QPainter *painter)
-{
-    if (!this->m_bgPixmap.isNull()) {
-        this->drawPixmapOnField(painter, this->m_bgPixmap);
-    } else if (this->m_bgColor.isValid()) {
-        painter->fillRect(QRect(QPoint(0, 0), this->snake->size()), QBrush(this->m_bgColor));
-    }
-}
 
 void Canvas::drawNode(QPainter *painter, QTransform transform, Snake::Node *node)
 {
@@ -132,10 +75,25 @@ void Canvas::drawNode(QPainter *painter, QTransform transform, Snake::Node *node
 
     // a workaround is to first do approximate scaling with QPixmap::scaled()
     // and then use the translated coordinates. this needs some thinking through, but works so far
-    QRectF source(QPointF(0, 0), QSizeF((int)this->nodeSize().width(), (int)this->nodeSize().height()));    // the entire pixmap
-    painter->drawPixmap(target, p->scaled((int)this->nodeSize().width(), (int)this->nodeSize().height()
-                                          , Qt::IgnoreAspectRatio, Qt::SmoothTransformation), source);
+    QRectF source(QPointF(0, 0),
+                  QSizeF((int)this->nodeSize().width()
+                         , (int)this->nodeSize().height()));    // the entire pixmap
+    painter->drawPixmap(target, p->scaled((int)this->nodeSize().width()
+                                          , (int)this->nodeSize().height()
+                                          , Qt::IgnoreAspectRatio
+                                          , Qt::SmoothTransformation)
+                        , source);
 }
+
+void Canvas::drawBackground(QPainter *painter)
+{
+    if (!this->m_bgPixmap.isNull()) {
+        this->drawPixmapOnField(painter, this->m_bgPixmap);
+    } else if (this->m_bgColor.isValid()) {
+        painter->fillRect(QRect(QPoint(0, 0), this->snake->size()), QBrush(this->m_bgColor));
+    }
+}
+
 
 void Canvas::drawPixmapOnField(QPainter *painter, QPixmap &pixmap)
 {
@@ -149,28 +107,58 @@ void Canvas::drawPixmapOnField(QPainter *painter, QPixmap &pixmap)
     painter->drawPixmap(target, p, source);
 }
 
+QTransform Canvas::keepAspect()
+{
+    QTransform transform;
+
+    int newWidth = this->keepAspectWidth();
+    int newHeight = this->keepAspectHeight();
+
+    qreal scale = qMax((qreal)newWidth / this->width()
+                       , (qreal)newHeight / this->height());
+
+    // scale to new size
+    transform.scale(scale, scale);
+
+    // center
+    transform.translate((this->width() - newHeight) / 2,
+                        (this->height() - newWidth) / 2);
+
+
+
+    return transform;
+}
+
+qreal Canvas::aspect()
+{
+    return this->m_nodeAspect * ((qreal)this->snake->size().width()
+                                 / this->snake->size().height());
+}
+
+int Canvas::keepAspectWidth()
+{
+    return qMin(this->width(), (int)(this->height() * this->aspect()));
+}
+
+int Canvas::keepAspectHeight()
+{
+    return this->keepAspectWidth() / this->aspect();
+}
+
 QSizeF Canvas::nodeSize()
 {
     return QSizeF((qreal)(this->keepAspectWidth()) / this->snake->size().width()
                 , (qreal)(this->keepAspectWidth()) / this->snake->size().height());
 }
 
-QPoint Canvas::pixelCoords(QPoint coords)
+void Canvas::setNodeAspect(qreal a)
 {
-    coords.setX(coords.x() * this->nodeSize().width());
-    coords.setY(coords.y() * this->nodeSize().height());
-    return coords;
-}
-
-void Canvas::sizeChanged()
-{
-    this->update();
+    this->m_nodeAspect = a;
 }
 
 void Canvas::setSnake(Snake *s)
 {
     this->snake = s;
-    connect(this->snake, SIGNAL(sizeChanged()), this, SLOT(sizeChanged()));
 }
 
 void Canvas::setPixmaps(PixmapMap *p)
@@ -199,4 +187,10 @@ void Canvas::setGameOverPixmap(QPixmap pixmap)
 void Canvas::setBgColor(QColor color)
 {
     this->m_bgColor = color;
+}
+
+Canvas::Canvas(QWidget *parent) :
+    QWidget(parent)
+{
+    this->m_nodeAspect = 1;
 }

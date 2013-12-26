@@ -15,6 +15,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->canvas->setSnake(this->snake);
     ui->canvas->setPixmaps(&(this->pixmaps));
     connect(this->snake, SIGNAL(refreshNodes()), this->ui->canvas, SLOT(update()));
+    connect(this->snake, SIGNAL(sizeChanged()), this->ui->canvas, SLOT(update()));
     connect(this->snake, SIGNAL(stateChanged()), this, SLOT(stateChanged()));
     connect(this->snake, SIGNAL(snakeLengthChanged()), this, SLOT(lengthChanged()));
     connect(this->ui->playBtn, SIGNAL(clicked()), this, SLOT(selectLevel()));

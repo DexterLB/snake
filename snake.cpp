@@ -1,9 +1,69 @@
 #include "snake.h"
 
+void Snake::tick()
+{
+    QPoint newCoords = this->m_nodes[SnakeBody].last()->pos
+            + orientationPoint(this->m_nodes[SnakeBody].last()->orientation);
+
+
+    // edge teleportation:
+    if (newCoords.x() >= this->size().width())
+        newCoords.setX(0);
+    if (newCoords.y() >= this->size().height())
+        newCoords.setY(0);
+    if (newCoords.x() < 0)
+        newCoords.setX(this->size().width() - 1);
+    if (newCoords.y() < 0)
+        newCoords.setY(this->size().height() - 1);
+
+    bool snakeGrowFlag = false;
+    if (!this->checkGameOver(newCoords)) {
+        // now move to the new coords
+
+        // check if there's an apple at the new position
+        if (this->gridLookup.contains(newCoords) &&
+                this->gridLookup.value(newCoords)->type == Apple) {
+            // delete the apple and make a new one
+            this->delNode(newCoords);
+            this->newApple(newCoords);
+            // not removing a node from the tail (growing)
+            snakeGrowFlag = true;
+        } else {
+            // remove a node at the "tail" only if not growing
+            this->delNode(SnakeBody, 0);
+            // the new first node now becomes the tail
+            this->m_nodes[SnakeBody].first()->attr = AttrSnakeTail;
+        }
+
+        // the old head now becomes part of the torso
+        if (this->m_nodes[SnakeBody].last()->attr == AttrSnakeHeadFat) {
+            this->m_nodes[SnakeBody].last()->attr = AttrSnakeTorsoFat;
+        } else {
+            this->m_nodes[SnakeBody].last()->attr = AttrSnakeTorso;
+        }
+
+        // add a node at the "head"
+        this->addNode(mkNode(newCoords, SnakeBody
+            , this->m_nodes[SnakeBody].last()->orientation
+            , (snakeGrowFlag ? AttrSnakeHeadFat : AttrSnakeHead), BendNone));
+        this->lastOrientation = this->m_nodes[SnakeBody].last()->orientation;
+
+        emit refreshNodes();
+        if (snakeGrowFlag) {    // fixme, I hate flags
+            emit snakeLengthChanged();
+        }
+    } else {
+        // game over
+        this->god->stop();
+        this->setState(Over);
+        emit refreshNodes();
+    }
+}
+
 Snake::Snake(QObject *parent) :
     QObject(parent)
 {
-
+    // constructor
     this->god = new QTimer();
     connect(this->god, SIGNAL(timeout()), this, SLOT(tick()));
     this->reset();
@@ -23,7 +83,6 @@ void Snake::reset()
 void Snake::init()
 {
     this->god->stop();
-
     qDebug() << "game init";
     this->setState(Stopped);
     emit refreshNodes();
@@ -57,6 +116,22 @@ bool Snake::pause()
         qDebug() << "pause game failed";
         return false;
     }
+}
+
+bool Snake::orient(Orientation o)
+{
+    if (this->lastOrientation == Nowhere)
+        this->lastOrientation = this->m_nodes[SnakeBody].last()->orientation;
+
+    if (areOpposite(o, this->lastOrientation)) {
+        return false;
+    }
+
+    this->m_nodes[SnakeBody].last()->bend = this->bendFromOrientation(
+                lastOrientation, o);
+    this->m_nodes[SnakeBody].last()->orientation = o;
+    emit refreshNodes();
+    return true;
 }
 
 void Snake::setState(GameState state)
@@ -239,66 +314,6 @@ bool Snake::checkGameOver(QPoint coords)
     }
 }
 
-void Snake::tick()
-{
-    QPoint newCoords = this->m_nodes[SnakeBody].last()->pos
-            + orientationPoint(this->m_nodes[SnakeBody].last()->orientation);
-
-
-    // edge teleportation:
-    if (newCoords.x() >= this->size().width())
-        newCoords.setX(0);
-    if (newCoords.y() >= this->size().height())
-        newCoords.setY(0);
-    if (newCoords.x() < 0)
-        newCoords.setX(this->size().width() - 1);
-    if (newCoords.y() < 0)
-        newCoords.setY(this->size().height() - 1);
-
-    bool snakeGrowFlag = false;
-    if (!this->checkGameOver(newCoords)) {
-        // now move to the new coords
-
-        // check if there's an apple at the new position
-        if (this->gridLookup.contains(newCoords) &&
-                this->gridLookup.value(newCoords)->type == Apple) {
-            // delete the apple and make a new one
-            this->delNode(newCoords);
-            this->newApple(newCoords);
-            // not removing a node from the tail (growing)
-            snakeGrowFlag = true;
-        } else {
-            // remove a node at the "tail" only if not growing
-            this->delNode(SnakeBody, 0);
-            // the new first node now becomes the tail
-            this->m_nodes[SnakeBody].first()->attr = AttrSnakeTail;
-        }
-
-        // the old head now becomes part of the torso
-        if (this->m_nodes[SnakeBody].last()->attr == AttrSnakeHeadFat) {
-            this->m_nodes[SnakeBody].last()->attr = AttrSnakeTorsoFat;
-        } else {
-            this->m_nodes[SnakeBody].last()->attr = AttrSnakeTorso;
-        }
-
-        // add a node at the "head"
-        this->addNode(mkNode(newCoords, SnakeBody
-            , this->m_nodes[SnakeBody].last()->orientation
-            , (snakeGrowFlag ? AttrSnakeHeadFat : AttrSnakeHead), BendNone));
-        this->lastOrientation = this->m_nodes[SnakeBody].last()->orientation;
-
-        emit refreshNodes();
-        if (snakeGrowFlag) {    // fixme, I hate flags
-            emit snakeLengthChanged();
-        }
-    } else {
-        // game over
-        this->god->stop();
-        this->setState(Over);
-        emit refreshNodes();
-    }
-}
-
 Snake::Bend Snake::bendFromOrientation(Orientation a, Orientation b)
 {
     if (a == Nowhere || b == Nowhere) {
@@ -326,22 +341,6 @@ bool Snake::areOpposite(Orientation a, Orientation b)
     }
     // opposite directions are spaced 2 apart
     return (abs(a - b) == 2);
-}
-
-bool Snake::orient(Orientation o)
-{
-    if (this->lastOrientation == Nowhere)
-        this->lastOrientation = this->m_nodes[SnakeBody].last()->orientation;
-
-    if (areOpposite(o, this->lastOrientation)) {
-        return false;
-    }
-
-    this->m_nodes[SnakeBody].last()->bend = this->bendFromOrientation(
-                lastOrientation, o);
-    this->m_nodes[SnakeBody].last()->orientation = o;
-    emit refreshNodes();
-    return true;
 }
 
 Snake::NodeMap Snake::nodes()

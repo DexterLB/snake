@@ -48,13 +48,6 @@ public:
     QSizeF nodeSize();
 
     /*!
-     * \brief convert node coordinates to pixel coordinates
-     * \param coords the node coordinates (number of nodes from x,y=0)
-     * \return calculated coordinates in pixels
-     */
-    QPoint pixelCoords(QPoint coords);
-
-    /*!
      * \brief set the aspect ratio for a single node
      * (don't really see when this won't be 1, but hey!)
      * \param a width/height
@@ -146,18 +139,26 @@ private:
 
     /*!
      * \brief the width of the field after forcing aspect ratio
+     * \sa keepAspectHeight()
+     * \sa keepAspect()
      * \return width
      */
     int keepAspectWidth();
 
     /*!
      * \brief the height of the field after forcing aspect ratio
+     * \sa keepAspectWidth()
+     * \sa keepAspect()
      * \return height
      */
     int keepAspectHeight();
 
     /*!
      * \brief transform the drawing area in order to keep the aspect ratio
+     * set the coordinate system to a rectangle in the centre of the widget
+     * that has the required aspect ratio
+     * \sa keepAspectHeight()
+     * \sa keepAspectWidth()
      * \return transform matrix
      */
     QTransform keepAspect();
@@ -191,12 +192,6 @@ protected:
      * or during a WM redraw event
      */
     void paintEvent(QPaintEvent *event);
-
-private slots:
-    /*!
-     * \brief upon field size change
-     */
-    void sizeChanged();
 };
 
 /*!

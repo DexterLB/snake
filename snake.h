@@ -14,6 +14,15 @@
  * \class Snake
  * \brief The actual game logic happens here
  * user interfaces should interact with this class
+ *
+ * the game field is divided into squares (sometimes rectangles)
+ * and each square can contain either nothing or a "node".
+ * nodes can be SnakeBody (part of the snake), Apple
+ * (the thing that makes the snake grow), Obstacle (kills the snake)
+ * or Void (do nothing, only for visual representation).
+ *
+ * this class processes the snake's movement and maintains a table
+ * of nodes that is renderable and represents the current game state
  */
 class Snake : public QObject
 {
@@ -139,7 +148,7 @@ public:
     NodeMap nodes();
 
     /*!
-     * \brief get the size of the field (in number of nodes)
+     * \brief get the size of the field (in number of nodes on each axis)
      */
     QSize size();
 
