@@ -304,6 +304,9 @@ bool MainWindow::readLevel(QString filename)
 
 void MainWindow::keyPressEvent(QKeyEvent *event)
 {
+    if (this->snake->state() == Snake::Undefined) {
+        return; // process these keys only when we're playing
+    }
     switch(event->key()) {
     case Qt::Key_Left:
         this->snake->orient(Snake::Left);
