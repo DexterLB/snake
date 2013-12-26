@@ -29,9 +29,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
 void MainWindow::loadInitialConfig()
 {
-    QDir::addSearchPath("main", QDir::currentPath());
-    QDir::addSearchPath("main", QDir::home().filePath("snake"));
-    QDir::addSearchPath("main", QDir::home().filePath(".snake"));
+    QDir::addSearchPath("main", QDir::current().filePath("config"));
+    QDir::addSearchPath("main", QDir::home().filePath("config/snake"));
+    QDir::addSearchPath("main", QDir::home().filePath("config/.snake"));
     if (!this->readLevelList("main:levels.json")) {
         this->errorList << QString() + "Cannot read level list"
                               + "failed reading levels.json from these locations:\n"
@@ -185,10 +185,12 @@ bool MainWindow::readLevel(QString filename)
     this->ui->canvas->setBgColor(QColor(root.value(QString("bg-clr")).toString()));
 
     // get background image
-    this->ui->canvas->setBgPixmap(QPixmap(root.value(QString("bg-img")).toString()));
+    this->ui->canvas->setBgPixmap(QPixmap(dir.filePath(
+                    root.value(QString("bg-img")).toString())));
 
     // get the game over image
-    this->ui->canvas->setGameOverPixmap(QPixmap(root.value(QString("gameover-img")).toString()));
+    this->ui->canvas->setGameOverPixmap(QPixmap(dir.filePath(
+                    root.value(QString("gameover-img")).toString())));
 
     // get size
     val = root.value(QString("size"));
@@ -312,15 +314,19 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
     }
     switch(event->key()) {
     case Qt::Key_Left:
+    case Qt::Key_A:
         this->snake->orient(Snake::Left);
         break;
     case Qt::Key_Right:
+    case Qt::Key_D:
         this->snake->orient(Snake::Right);
         break;
     case Qt::Key_Up:
+    case Qt::Key_W:
         this->snake->orient(Snake::Up);
         break;
     case Qt::Key_Down:
+    case Qt::Key_S:
         this->snake->orient(Snake::Down);
         break;
     case Qt::Key_N:
