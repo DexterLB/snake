@@ -1,0 +1,20 @@
+{
+    "levels": [
+        {
+            "name": "Blank",
+            "file": "blank.json"
+        },
+        {
+            "name": "Contained",
+            "file": "contained.json"
+        },
+        {
+            "name": "Awesome",
+            "file": "awesome.json"
+        },
+        {
+            "name": "Turbo",
+            "file": "turbo.json"
+        }
+    ]
+}

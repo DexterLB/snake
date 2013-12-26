@@ -1,0 +1,88 @@
+{
+    "size": [30, 30],
+    "bg-clr": "#ebac54",
+    "bg-img": "img/bg30.png",
+    "gameover-img": "img/gameover30.png",
+    "speed": 100,
+    "pixmaps": [
+        {
+            "attrs": [0],
+            "file": "img/snakebody.png",
+            "bend": ["none"]
+        },
+        {
+            "attrs": [0],
+            "file": "img/snakebodycw.png",
+            "bend": ["cw"]
+        },
+        {
+            "attrs": [0],
+            "file": "img/snakebodyccw.png",
+            "bend": ["ccw"]
+        },
+        {
+            "attrs": [5],
+            "file": "img/snakefat.png",
+            "bend": ["none"]
+        },
+        {
+            "attrs": [5],
+            "file": "img/snakefatcw.png",
+            "bend": ["cw"]
+        },
+        {
+            "attrs": [5],
+            "file": "img/snakefatccw.png",
+            "bend": ["ccw"]
+        },
+        {
+            "attrs": [2],
+            "file": "img/snaketail.png"
+        },
+        {
+            "attrs": [1, 4],
+            "file": "img/snakehead.png",
+            "bend": ["none"]
+        },
+        {
+            "attrs": [1, 4],
+            "file": "img/snakeheadcw.png",
+            "bend": ["cw"]
+        },
+        {
+            "attrs": [1, 4],
+            "file": "img/snakeheadccw.png",
+            "bend": ["ccw"]
+        },
+        {
+            "attrs": [3],
+            "file": "img/apple.png"
+        }
+    ],
+    "nodes": [
+        {
+            "type": "body",
+            "attr": 2,
+            "position": [1, 1],
+            "orientation": "right"
+        },
+        {
+            "type": "body",
+            "attr": 0,
+            "position": [2, 1],
+            "orientation": "right"
+        },
+        {
+            "type": "body",
+            "attr": 0,
+            "position": [3, 1],
+            "orientation": "right"
+        },
+        {
+            "type": "body",
+            "attr": 1,
+            "position": [4, 1],
+            "orientation": "right"
+        }
+    ]
+}
