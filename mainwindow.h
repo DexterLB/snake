@@ -76,6 +76,11 @@ private:
      */
     Canvas::PixmapMap pixmaps;
 
+    /*!
+     * \brief stores all errors to moment
+     */
+    QStringList errorList;
+
 private slots:
     /*!
      * \brief game state changed
@@ -101,6 +106,11 @@ private slots:
      * \brief this is executed as soon as we enter the event loop
      */
     void loadInitialConfig();
+
+    /*!
+     * \brief display an error message and exit
+     */
+    void fail();
 
 protected:
     /*!

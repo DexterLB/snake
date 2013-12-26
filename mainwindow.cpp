@@ -33,10 +33,10 @@ void MainWindow::loadInitialConfig()
     QDir::addSearchPath("main", QDir::home().filePath("snake"));
     QDir::addSearchPath("main", QDir::home().filePath(".snake"));
     if (!this->readLevelList("main:levels.json")) {
-        QMessageBox::critical(this, "Cannot read level list", QString()
+        this->errorList << QString() + "Cannot read level list"
                               + "failed reading levels.json from these locations:\n"
-                              + QDir::searchPaths("main").join('\n'));
-        qApp->exit(1);
+                              + QDir::searchPaths("main").join('\n');
+        this->fail();
     }
 }
 
@@ -80,9 +80,10 @@ void MainWindow::selectLevel()
 
     QString file = items.first()->data(Qt::UserRole).toString();
     if (!this->readLevel(file)) {
-        QMessageBox::critical(this, "Cannot read level list", "failed reading file: "
-                              + file);
-        qApp->exit(1);
+        this->errorList << QString() + "Cannot read level list: "
+                           + "failed reading file: "
+                              + file;
+        this->fail();
     }
 }
 
@@ -118,7 +119,7 @@ QJsonObject MainWindow::readJson(QString filename)
 {
     QFile file(filename);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        qDebug() << "failed to open file " << filename;
+        this->errorList << "failed to open file " << filename;
         return QJsonObject();
     }
     QJsonParseError err;
@@ -126,8 +127,10 @@ QJsonObject MainWindow::readJson(QString filename)
     file.close();
     QJsonDocument doc = QJsonDocument::fromJson(data, &err);
     if (err.error != QJsonParseError::NoError) {
-        qDebug() << "json parse error: " << err.errorString() << " at " << err.offset;
-        qDebug() << data.insert(err.offset - 1, "<!>");
+        this->errorList << "json parse error: "
+                           + err.errorString()
+                           + " at " + QString::number(err.offset);
+        this->errorList << data.insert(err.offset - 1, "<!>");
         return QJsonObject();
     }
     return doc.object();
@@ -150,7 +153,7 @@ bool MainWindow::readLevelList(QString filename)
         name = (*i).toObject().value("name").toString();
         file = dir.filePath((*i).toObject().value("file").toString());
         if (name.isEmpty() || file.isEmpty()) {
-            qDebug() << "empty value";
+            this->errorList << "empty value";
             return false;
         }
         item = new QListWidgetItem(name, this->ui->levelList);
@@ -190,13 +193,13 @@ bool MainWindow::readLevel(QString filename)
     // get size
     val = root.value(QString("size"));
     if (val.toArray().size() != 2) {
-        qDebug() << "size is not a tuple" << val.toArray().toVariantList();
+        this->errorList << "size is not a tuple";
         return false;
     }
     size.setWidth(val.toArray().at(0).toInt(0));
     size.setHeight(val.toArray().at(1).toInt(0));
     if (!size.isValid()) {
-        qDebug() << "size is invalid";
+        this->errorList << "size is invalid";
         return false;
     }
     this->snake->setSize(size);
@@ -212,7 +215,7 @@ bool MainWindow::readLevel(QString filename)
     val = root.value(QString("nodes"));
     if (!val.isArray()) {// all files will be relative to this directory
         QDir dir = QFileInfo(filename).dir();
-        qDebug() << "nodes is not an array";
+        this->errorList << "nodes is not an array";
         return false;
     }
     QJsonObject obj;
@@ -235,7 +238,7 @@ bool MainWindow::readLevel(QString filename)
         // get position
         arr = obj.value(QString("position")).toArray();
         if (arr.size() != 2) {
-            qDebug() << "position is not a tuple";
+            this->errorList << "position is not a tuple";
             return false;
         }
         pos.setX(arr.at(0).toInt());
@@ -254,7 +257,7 @@ bool MainWindow::readLevel(QString filename)
     this->clearPixmaps();
     val = root.value(QString("pixmaps"));
     if (!val.isArray()) {
-        qDebug() << "nodes is not an array";
+        this->errorList << "nodes is not an array";
         return false;
     }
 
@@ -265,7 +268,7 @@ bool MainWindow::readLevel(QString filename)
         obj = (*i).toObject();
         p = new QPixmap(dir.filePath(obj.value(QString("file")).toString()));
         if (p->isNull()) {
-            qDebug() << "invalid pixmap";
+            this->errorList << "invalid pixmap";
             delete p;
             return false;
         }
@@ -274,7 +277,7 @@ bool MainWindow::readLevel(QString filename)
         for (QJsonArray::ConstIterator j = arr.constBegin();
              j != arr.constEnd(); ++j) {
             if (!((*j).isDouble())) {
-                qDebug() << "attr isn't a number";
+                this->errorList << "attr isn't a number";
                 delete p;
                 return false;
             }
@@ -343,4 +346,11 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
     default:
         QWidget::keyPressEvent(event);
     }
+}
+
+void MainWindow::fail()
+{
+    QMessageBox::critical(this, "Critical error"
+                          , this->errorList.join("\n"));
+    qApp->exit(1);
 }
