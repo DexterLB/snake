@@ -7,51 +7,51 @@
     "pixmaps": [
         {
             "attrs": [0],
-            "file": "img/snakebody.png",
+            "file": "img/bw/snakebody.png",
             "bend": ["none"]
         },
         {
             "attrs": [0],
-            "file": "img/snakebodycw.png",
+            "file": "img/bw/snakebodycw.png",
             "bend": ["cw"]
         },
         {
             "attrs": [0],
-            "file": "img/snakebodyccw.png",
+            "file": "img/bw/snakebodyccw.png",
             "bend": ["ccw"]
         },
         {
             "attrs": [5],
-            "file": "img/snakefat.png",
+            "file": "img/bw/snakefat.png",
             "bend": ["none"]
         },
         {
             "attrs": [5],
-            "file": "img/snakefatcw.png",
+            "file": "img/bw/snakefatcw.png",
             "bend": ["cw"]
         },
         {
             "attrs": [5],
-            "file": "img/snakefatccw.png",
+            "file": "img/bw/snakefatccw.png",
             "bend": ["ccw"]
         },
         {
             "attrs": [2],
-            "file": "img/snaketail.png"
+            "file": "img/bw/snaketail.png"
         },
         {
             "attrs": [1, 4],
-            "file": "img/snakehead.png",
+            "file": "img/bw/snakehead.png",
             "bend": ["none"]
         },
         {
             "attrs": [1, 4],
-            "file": "img/snakeheadcw.png",
+            "file": "img/bw/snakeheadcw.png",
             "bend": ["cw"]
         },
         {
             "attrs": [1, 4],
-            "file": "img/snakeheadccw.png",
+            "file": "img/bw/snakeheadccw.png",
             "bend": ["ccw"]
         },
         {
