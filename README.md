@@ -5,6 +5,7 @@ GUI widgets for rendering.
 
 Quickstart
 ==========
+
 ```
 mkdir build
 cd build
@@ -35,6 +36,7 @@ make -j4
 Running
 =======
 Make sure that the `config` directory is in one of the following locations:
+
 ```
 ./snake
 ~/.snake
@@ -47,6 +49,7 @@ in the same folder as snake.exe)
 
 #### Distribution
 For binary distribution the game requires the following libraries:
+
 ```
 icudt51
 icuin51
@@ -68,6 +71,7 @@ Configuration
 =============
 The game is configured using JSON. It first looks for `config/levels.json`,
 which has the following syntax:
+
 ```
 {
     "levels": [
@@ -106,6 +110,7 @@ image that does nothing and the snake passes through).
 
 `attr`: an integer that is used for determining the pixmap which will render
 on the screen. Reserved `attr`'s are:
+
 ```
 0: Snake torso
 1: Snake head
